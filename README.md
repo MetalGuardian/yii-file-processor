@@ -27,6 +27,7 @@ modules section:
 			'class' => '\fileProcessor\FileProcessorModule',
 			'originalBaseDir' => 'uploads/original',
 			'cachedImagesBaseDir' => 'uploads/thumb',
+			// set path without first and last slashes
 			'imageSections' => array(
 				'admin'=>array(
 					'default'=>array(
@@ -49,9 +50,14 @@ component section:
 			...
 			'rules'=>array(
 				...
+				array(
+					'class' => '\fileProcessor\components\YiiFileProcessorUrlRule',
+					'connectionId' => 'db',
+					'cacheId' => 'cache',
+					'controllerId' => 'image',
+				),
+				// controllerId - name of the controller, which you set in controller map
 				'uploads/thumb/<sub:\d+>/<model:\w+>_<type:\w+>/<id:\d+>.<ext:(png|gif|jpg|jpeg)>' => 'image/resize',
-				// uploads/thumb/ - it is path of cached image files will be saved
-				// image - name of the controller, which you set in controller map
 				...
 			),
 		),
