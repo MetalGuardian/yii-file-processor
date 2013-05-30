@@ -34,6 +34,7 @@ modules section:
 						'width' => 100,
 						'height' => 100,
 						'quality' => 100,
+						'do' => 'thumb', // resize|thumb|adaptiveThumb
 					),
 				),
 			),

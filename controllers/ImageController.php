@@ -32,8 +32,27 @@ class ImageController extends \CController
 			$this->createCacheDir($id, $model, $type);
 
 			$ih->load($file);
-			//$ih->resize($config['width'], $config['height']);
-			$ih->adaptiveThumb($config['width'], $config['height']);
+			if(isset($config['do']))
+			{
+				switch($config['do'])
+				{
+					case 'adaptiveThumb':
+						$ih->adaptiveThumb($config['width'], $config['height']);
+						break;
+					case 'resize':
+						$ih->resize($config['width'], $config['height']);
+						break;
+					case 'thumb':
+						$ih->thumb($config['width'], $config['height']);
+						break;
+					default:
+						break;
+				}
+			}
+			else
+			{
+				$ih->adaptiveThumb($config['width'], $config['height']);
+			}
 			$ih->save($thumbFile, false, $config['quality']);
 			$ih->show(false, $config['quality']);
 		}
