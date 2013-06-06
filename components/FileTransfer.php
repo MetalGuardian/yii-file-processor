@@ -26,8 +26,8 @@ class FileTransfer extends \fileProcessor\components\HttpFileTransfer
 	 */
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile)
 	{
-		$ext = mb_strtolower($uploadedFile->getExtensionName());
-		$realName = mb_strtolower($uploadedFile->getName());
+		$ext = \mb_strtolower($uploadedFile->getExtensionName());
+		$realName = $uploadedFile->getName();
 
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		$command = \Yii::app()->db->createCommand($sql);

@@ -64,7 +64,7 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 			}
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . mb_strtolower($uploadedFile->getExtensionName());
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($uploadedFile->getExtensionName());
 
 		$uploadedFile->saveAs($fileName);
 
