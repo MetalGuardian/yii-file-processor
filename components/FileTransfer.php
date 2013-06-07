@@ -46,7 +46,7 @@ class FileTransfer extends \fileProcessor\components\HttpFileTransfer
 	 *		'extension' => 'jpeg',
 	 * );
 	 */
-	public function getMetaData($id)
+	public function getMetaData($id, $fields = 'extension')
 	{
 		$row = false;
 		$cache = false;
@@ -59,9 +59,11 @@ class FileTransfer extends \fileProcessor\components\HttpFileTransfer
 
 		if (false === $row || !is_array($row))
 		{
-			$sql = 'SELECT extension FROM {{file}} WHERE id = :iid';
-			$command = \Yii::app()->db->createCommand($sql);
-			$row = $command->queryRow(true, array(':iid'=>$id));
+			$command = \Yii::app()->db->createCommand()
+				->select($fields)
+				->from('{{file}}')
+				->where('id = :iid', array(':iid'=>$id));
+			$row = $command->queryRow();
 			if ($cache)
 			{
 				$cache->set(\fileProcessor\helpers\FPM::m()->CACHE_PREFIX . '#' . $id, $row, \fileProcessor\helpers\FPM::m()->cacheExpire);
