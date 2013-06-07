@@ -58,7 +58,7 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 		if(!is_dir($dirName))
 		{
 			// @TODO: fix this line. @ - is not good
-			if(!@mkdir($dirName))
+			if(!@mkdir($dirName, 0777, true))
 			{
 				throw new \CException(\fileProcessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
 			}

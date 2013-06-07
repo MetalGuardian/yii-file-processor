@@ -67,6 +67,15 @@ class ImageController extends \CController
 	{
 		$dirName = \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . \fileProcessor\helpers\FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / \fileProcessor\helpers\FPM::m()->filesPerDir);
 
+		if(!is_dir($dirName))
+		{
+			// @TODO: fix this line. @ - is not good
+			if(!@mkdir($dirName, 0777, true))
+			{
+				throw new \CException(\fileprocessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
+			}
+		}
+
 		$subPath = $dirName . DIRECTORY_SEPARATOR . $model . '_' . $type;
 
 		if(!is_dir($subPath))
