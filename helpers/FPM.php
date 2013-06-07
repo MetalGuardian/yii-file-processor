@@ -1,5 +1,10 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\helpers;
+
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
@@ -24,8 +29,7 @@ class FPM
 	 */
 	public static function m($module = 'file-processor')
 	{
-		if(!\Yii::app()->hasModule($module))
-		{
+		if (!\Yii::app()->hasModule($module)) {
 			throw new \CException('Wrong component name! You need call this method with right file-processor component name.');
 		}
 		return \Yii::app()->getModule($module);
@@ -41,8 +45,7 @@ class FPM
 	 */
 	public static function cache()
 	{
-		if(is_null(self::$cache))
-		{
+		if (is_null(self::$cache)) {
 			self::$cache = \Yii::createComponent('\fileProcessor\components\ImageCache');
 		}
 		return self::$cache;
@@ -53,8 +56,7 @@ class FPM
 	 */
 	public static function transfer()
 	{
-		if(is_null(self::$transfer))
-		{
+		if (is_null(self::$transfer)) {
 			self::$transfer = \Yii::createComponent('\fileProcessor\components\FileTransfer');
 		}
 		return self::$transfer;
@@ -72,17 +74,19 @@ class FPM
 	 * @internal param string $sectionId section ID
 	 * @return string the generated image tag
 	 */
-	public static function image($id, $moduleId, $size, $alt='', $htmlOptions=array())
+	public static function image($id, $moduleId, $size, $alt = '', $htmlOptions = array())
 	{
-		if(!(int) $id)
+		if (!(int) $id) {
 			return null;
+		}
 		return \CHtml::image(self::src($id, $moduleId, $size), $alt, $htmlOptions);
 	}
 
-	public static function originalImage($id, $alt='', $htmlOptions=array())
+	public static function originalImage($id, $alt = '', $htmlOptions = array())
 	{
-		if(!(int) $id)
+		if (!(int) $id) {
 			return null;
+		}
 		return \CHtml::image(self::originalSrc($id), $alt, $htmlOptions);
 	}
 
@@ -98,34 +102,34 @@ class FPM
 	 */
 	public static function src($id, $model, $size)
 	{
-		$metaData = \fileProcessor\helpers\FPM::transfer()->getMetaData($id);
-		$src = \fileProcessor\helpers\FPM::m()->host . \fileProcessor\helpers\FPM::m()->cachedImagesBaseDir . '/' . floor($id / \fileProcessor\helpers\FPM::m()->filesPerDir) . '/' . $model . '_' . $size . '/' . $id . '.' . $metaData['extension'];
+		$metaData = FPM::transfer()->getMetaData($id);
+		$src = FPM::m()->host . FPM::m()->cachedImagesBaseDir . '/' . floor($id / FPM::m()->filesPerDir) . '/' . $model . '_' . $size . '/' . $id . '.' . $metaData['extension'];
 
 		return $src;
 	}
 
 	public static function originalSrc($id)
 	{
-		$metaData = \fileProcessor\helpers\FPM::transfer()->getMetaData($id);
+		$metaData = FPM::transfer()->getMetaData($id);
 
-		$src = \fileProcessor\helpers\FPM::m()->host . \fileProcessor\helpers\FPM::m()->originalBaseDir . '/' . floor($id / \fileProcessor\helpers\FPM::m()->filesPerDir) . '/' . $id . '.' . $metaData['extension'];
+		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor($id / FPM::m()->filesPerDir) . '/' . $id . '.' . $metaData['extension'];
 
 		return $src;
 	}
 
 	public static function getOriginalFilePath($id, $ext)
 	{
-		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . \fileProcessor\helpers\FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor($id / \fileProcessor\helpers\FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
+		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
 	public static function getCachedImagePath($id, $model, $size, $ext)
 	{
-		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . \fileProcessor\helpers\FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / \fileProcessor\helpers\FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
+		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
 	public static function deleteFiles($fileId, $ext = false)
 	{
-		\fileProcessor\helpers\FPM::cache()->delete($fileId, $ext);
-		\fileProcessor\helpers\FPM::transfer()->deleteFile($fileId, $ext);
+		FPM::cache()->delete($fileId, $ext);
+		FPM::transfer()->deleteFile($fileId, $ext);
 	}
 }

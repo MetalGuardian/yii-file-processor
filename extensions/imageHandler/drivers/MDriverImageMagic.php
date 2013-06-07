@@ -1,11 +1,15 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\extensions\imageHandler\drivers;
 
 /**
  * @author  mlapko <maxlapko@gmail.com>
  * @version 0.1
  */
-class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\MDriverAbstract
+class MDriverImageMagic extends MDriverAbstract
 {
 	const IMG_GIF = 'GIF';
 	const IMG_JPEG = 'JPEG';
@@ -13,24 +17,20 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 
 	public function resize($width, $height, $proportional = true)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		$width = $width !== false ? $width : $this->_width;
 		$height = $height !== false ? $height : $this->_height;
 
-		if($proportional)
-		{
+		if ($proportional) {
 			$newHeight = $height;
 			$newWidth = round($newHeight / $this->_height * $this->_width);
 
-			if($newWidth > $width)
-			{
+			if ($newWidth > $width) {
 				$newWidth = $width;
 				$newHeight = round($newWidth / $this->_width * $this->_height);
 			}
-		}
-		else
-		{
+		} else {
 			$newWidth = $width;
 			$newHeight = $height;
 		}
@@ -46,20 +46,18 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 	public function watermark($watermarkFile, $offsetX, $offsetY, $corner = self::CORNER_RIGHT_BOTTOM)
 	{
 
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
-		if($watermark = $this->_loadImage($watermarkFile))
-		{
+		if ($watermark = $this->loadImage($watermarkFile)) {
 			/** @var $image mixed */
 			$image = $watermark['image'];
 			$posX = 0;
 			$posY = 0;
-			if($this->_width < $watermark['width'] || $this->_height < $watermark['height'])
-			{
+			if ($this->_width < $watermark['width'] || $this->_height < $watermark['height']) {
 				$image->scaleImage($this->_width, $this->_height, true);
 			}
 
-			list($posX, $posY) = $this->_getCornerPosition(
+			list($posX, $posY) = $this->getCornerPosition(
 				$corner, $image->getImageWidth(),
 				$image->getImageHeight(), $offsetX, $offsetY
 			);
@@ -67,19 +65,16 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 			$this->_image->compositeImage($image, \Imagick::COMPOSITE_OVER, $posX, $posY);
 
 			return $this;
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
 
 	public function flip($mode)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
-		switch($mode)
-		{
+		switch ($mode) {
 			case self::FLIP_HORIZONTAL:
 				$this->_image->flopImage();
 				break;
@@ -99,7 +94,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 
 	public function rotate($degrees, $backgroundColor = '#000000')
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		$degrees = (int)$degrees;
 		$this->_image->rotateImage(new \ImagickPixel($backgroundColor), $degrees);
@@ -107,14 +102,13 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 		$geometry = $this->_image->getImageGeometry();
 		$this->_width = $geometry['width'];
 		$this->_height = $geometry['height'];
-		;
 
 		return $this;
 	}
 
 	public function crop($width, $height, $startX = false, $startY = false)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		$width = (int)$width;
 		$height = (int)$height;
@@ -138,7 +132,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 
 	public function text($text, $fontFile, $size = 12, $color = '#000000', $corner = self::CORNER_LEFT_TOP, $offsetX = 0, $offsetY = 0, $angle = 0)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		/* This object will hold the font properties */
 		$draw = new \ImagickDraw();
@@ -167,7 +161,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 		$im->setImageFormat('png');
 		$im->annotateImage($draw, 0, 0, 0, $text);
 
-		list($posX, $posY) = $this->_getCornerPosition($corner, $textWidth, $textHeight, $offsetX, $offsetY);
+		list($posX, $posY) = $this->getCornerPosition($corner, $textWidth, $textHeight, $offsetX, $offsetY);
 
 		/* Composite the watermark on the image to the top left corner */
 		$this->_image->compositeImage($im, \Imagick::COMPOSITE_OVER, $posX, $posY);
@@ -177,7 +171,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 
 	public function resizeCanvas($width, $height, $backgroundColor = '#FFFFFF')
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		/* Create a canvas with the desired color */
 		$canvas = new \Imagick();
@@ -203,20 +197,19 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 
 	public function show($format = false, $jpegQuality = 75)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
-		if(!$format)
-		{
+		if (!$format) {
 			$format = $this->_format;
 		}
-		if($format === 'JPEG' || $format === 'JPG')
-		{
+		if ($format === 'JPEG' || $format === 'JPG') {
 			$jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
 			$this->_image->setCompression(\Imagick::COMPRESSION_JPEG);
 			$this->_image->setCompressionQuality($jpegQuality);
 		}
 		header('Content-Type: image/' . $this->_image->getImageFormat());
 		echo $this->_image;
+
 		return $this;
 	}
 
@@ -231,47 +224,42 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 	 */
 	public function save($file = false, $format = false, $jpegQuality = 75, $touch = false)
 	{
-		if(!$file)
-		{
+		if (!$file) {
 			$file = $this->_fileName;
 		}
 
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
-		if(!$format)
-		{
+		if (!$format) {
 			$format = $this->_format;
 		}
 		$format = strtoupper($format);
-		if($format === self::IMG_JPEG || $format === 'JPG')
-		{
+		if ($format === self::IMG_JPEG || $format === 'JPG') {
 			$jpegQuality = $this->_quality === null ? $jpegQuality : $this->_quality;
 			$this->_image->setCompression(\Imagick::COMPRESSION_JPEG);
 			$this->_image->setCompressionQuality($jpegQuality);
 		}
 		$this->_image->writeImage($file);
-		if($touch && $file != $this->fileName)
-		{
+		if ($touch && $file != $this->fileName) {
 			touch($file, filemtime($this->fileName));
 		}
+
 		return $this;
 	}
 
-	protected function _freeImage()
+	protected function freeImage()
 	{
-		$this->_destroyImage($this->_image);
+		$this->destroyImage($this->_image);
 		$this->_image = null;
-		if(isset($this->_originalImage['image']))
-		{
-			$this->_destroyImage($this->_originalImage['image']);
+		if (isset($this->_originalImage['image'])) {
+			$this->destroyImage($this->_originalImage['image']);
 		}
 		$this->_originalImage = null;
 	}
 
-	protected function _checkLoaded()
+	protected function checkLoaded()
 	{
-		if(!($this->_image instanceof \Imagick))
-		{
+		if (!($this->_image instanceof \Imagick)) {
 			throw new \Exception('Image was not loaded.');
 		}
 	}
@@ -281,10 +269,9 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 	 *
 	 * @var \Imagick $image
 	 */
-	protected function _destroyImage($image)
+	protected function destroyImage($image)
 	{
-		if($image instanceof \Imagick)
-		{
+		if ($image instanceof \Imagick) {
 			$image->destroy();
 		}
 	}
@@ -294,7 +281,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 	 * @var string $file path to image file
 	 * @return array
 	 */
-	protected function _loadImage($file)
+	protected function loadImage($file)
 	{
 		$result = array();
 
@@ -304,6 +291,7 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 		$result['width'] = $geometry['width'];
 		$result['height'] = $geometry['height'];
 		$result['format'] = $image->getImageFormat();
+
 		return $result;
 
 	}
@@ -312,10 +300,9 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 	 *
 	 * @param mixed $image
 	 */
-	protected function _initImage($image = false)
+	protected function initImage($image = false)
 	{
-		if($image === false)
-		{
+		if ($image === false) {
 			$image = $this->_originalImage;
 		}
 
@@ -324,9 +311,8 @@ class MDriverImageMagic extends \fileProcessor\extensions\imageHandler\drivers\M
 		$this->_format = $image['format'];
 
 		//Image
-		$this->_destroyImage($this->_image);
+		$this->destroyImage($this->_image);
 		$this->_image = $image['image'];
 
 	}
-
 }

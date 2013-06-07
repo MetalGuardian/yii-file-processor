@@ -1,18 +1,27 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\components;
+
+use fileProcessor\helpers\FPM;
+
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-class FileTransfer extends \fileProcessor\components\HttpFileTransfer
+class FileTransfer extends HttpFileTransfer
 {
 	public function __construct($baseDestinationDir = null, $maxFilesPerDir = null)
 	{
-		if($baseDestinationDir === null)
-			$baseDestinationDir = \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . \fileProcessor\helpers\FPM::m()->originalBaseDir;
+		if ($baseDestinationDir === null) {
+			$baseDestinationDir = \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->originalBaseDir;
+		}
 
-		if($maxFilesPerDir === null)
-			$maxFilesPerDir = \fileProcessor\helpers\FPM::m()->filesPerDir;
+		if ($maxFilesPerDir === null) {
+			$maxFilesPerDir = FPM::m()->filesPerDir;
+		}
 
 		parent::__construct($baseDestinationDir, $maxFilesPerDir);
 	}
@@ -31,65 +40,65 @@ class FileTransfer extends \fileProcessor\components\HttpFileTransfer
 
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		$command = \Yii::app()->db->createCommand($sql);
-		$command->execute(array(':ext'=>$ext, 'time'=>time(), ':name'=>$realName));
+		$command->execute(array(':ext' => $ext, 'time' => time(), ':name' => $realName));
+
 		return \Yii::app()->db->getLastInsertID();
 	}
 
 	/**
 	 * Get file meta information.
-	 * 
-	 * @param integer $id file id.
-	 * 
-	 * @return array array with file meta information.
 	 * Example:
 	 * array(
-	 *		'extension' => 'jpeg',
+	 *        'extension' => 'jpeg',
 	 * );
+	 *
+	 * @param integer $id file id.
+	 *
+	 * @param string  $fields
+	 *
+	 * @return array array with file meta information.
 	 */
 	public function getMetaData($id, $fields = 'extension')
 	{
 		$row = false;
 		$cache = false;
-		if (!empty(\fileProcessor\helpers\FPM::m()->cache) && \Yii::app()->hasComponent(\fileProcessor\helpers\FPM::m()->cache))
-		{
+		if (!empty(FPM::m()->cache) && \Yii::app()->hasComponent(FPM::m()->cache)) {
 			/** @var $cache \CDummyCache */
-			$cache = \Yii::app()->getComponent(\fileProcessor\helpers\FPM::m()->cache);
-			$row = $cache->get(\fileProcessor\helpers\FPM::m()->CACHE_PREFIX . '#' . $id);
+			$cache = \Yii::app()->getComponent(FPM::m()->cache);
+			$row = $cache->get(FPM::m()->CACHE_PREFIX . '#' . $id);
 		}
 
-		if (false === $row || !is_array($row))
-		{
+		if (false === $row || !is_array($row)) {
 			$command = \Yii::app()->db->createCommand()
 				->select($fields)
 				->from('{{file}}')
-				->where('id = :iid', array(':iid'=>$id));
+				->where('id = :iid', array(':iid' => $id));
 			$row = $command->queryRow();
-			if ($cache)
-			{
-				$cache->set(\fileProcessor\helpers\FPM::m()->CACHE_PREFIX . '#' . $id, $row, \fileProcessor\helpers\FPM::m()->cacheExpire);
+			if ($cache) {
+				$cache->set(FPM::m()->CACHE_PREFIX . '#' . $id, $row, FPM::m()->cacheExpire);
 			}
 		}
 
 		return $row;
 	}
-	
+
 	/**
 	 * Delete file meta information.
-	 * 
+	 *
 	 * @param integer $id file id.
-	 * 
+	 *
 	 * @return boolean
 	 */
 	public function deleteMetaData($id)
 	{
-		if (!empty(\fileProcessor\helpers\FPM::m()->cache) && \Yii::app()->hasComponent(\fileProcessor\helpers\FPM::m()->cache))
-		{
+		if (!empty(FPM::m()->cache) && \Yii::app()->hasComponent(FPM::m()->cache)) {
 			/** @var $cache \CDummyCache */
-			$cache = \Yii::app()->getComponent(\fileProcessor\helpers\FPM::m()->cache);
-			$cache->delete(\fileProcessor\helpers\FPM::m()->CACHE_PREFIX . '#' . $id);
+			$cache = \Yii::app()->getComponent(FPM::m()->cache);
+			$cache->delete(FPM::m()->CACHE_PREFIX . '#' . $id);
 		}
 		$sql = 'DELETE FROM {{file}} WHERE id = :iid';
 		$command = \Yii::app()->db->createCommand($sql);
-		return $command->execute(array(':iid'=>$id));
+
+		return $command->execute(array(':iid' => $id));
 	}
 }

@@ -1,9 +1,14 @@
 <?php
-namespace fileProcessor\models;
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
+
+namespace fileProcessor\models;
+
+use fileProcessor\components\base\FileProcessorModuleActiveRecord;
+use fileProcessor\helpers\FPM;
+
 /**
  * This is the model class for table "{{file}}".
  *
@@ -13,14 +18,14 @@ namespace fileProcessor\models;
  * @property string $real_name
  * @property string $created
  */
-class File extends \fileProcessor\components\base\FileProcessorModuleActiveRecord
+class File extends FileProcessorModuleActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
 	 * @return File the static model class
 	 */
-	public static function model($className=__CLASS__)
+	public static function model($className = __CLASS__)
 	{
 		return parent::model($className);
 	}
@@ -63,10 +68,10 @@ class File extends \fileProcessor\components\base\FileProcessorModuleActiveRecor
 	public function attributeLabels()
 	{
 		return array(
-			'id' => \fileProcessor\helpers\FPM::t('ID'),
-			'extension' => \fileProcessor\helpers\FPM::t('Extension'),
-			'real_name' => \fileProcessor\helpers\FPM::t('Real Name'),
-			'created' => \fileProcessor\helpers\FPM::t('Created'),
+			'id' => FPM::t('ID'),
+			'extension' => FPM::t('Extension'),
+			'real_name' => FPM::t('Real Name'),
+			'created' => FPM::t('Created'),
 		);
 	}
 
@@ -79,17 +84,17 @@ class File extends \fileProcessor\components\base\FileProcessorModuleActiveRecor
 	 */
 	public function search($pageSize = false)
 	{
-		$criteria=new \CDbCriteria;
+		$criteria = new \CDbCriteria;
 
-		$criteria->compare('id',$this->id,true);
-		$criteria->compare('extension',$this->extension,true);
-		$criteria->compare('real_name',$this->real_name,true);
-		$criteria->compare('created',$this->created,true);
+		$criteria->compare('id', $this->id, true);
+		$criteria->compare('extension', $this->extension, true);
+		$criteria->compare('real_name', $this->real_name, true);
+		$criteria->compare('created', $this->created, true);
 
 		return new \CActiveDataProvider($this, array(
 			'criteria' => $criteria,
 			'pagination' => array(
-				'pageSize' => $pageSize ? $pageSize : \fileProcessor\helpers\FPM::m()->defaultPageSize,
+				'pageSize' => $pageSize ? $pageSize : FPM::m()->defaultPageSize,
 			),
 			'sort' => array(
 				'defaultSort' => array(

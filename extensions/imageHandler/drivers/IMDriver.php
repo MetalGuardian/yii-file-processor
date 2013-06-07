@@ -1,5 +1,10 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\extensions\imageHandler\drivers;
+
 /**
  * @author mlapko <maxlapko@gmail.com>
  */
@@ -28,5 +33,4 @@ interface IMDriver
 	 * @return mixed
 	 */
 	public function load($file);
-
 }

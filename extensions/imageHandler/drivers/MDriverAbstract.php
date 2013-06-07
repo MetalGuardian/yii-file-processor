@@ -1,9 +1,14 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\extensions\imageHandler\drivers;
+
 /**
  * @author mlapko <maxlapko@gmail.com>
  */
-abstract class MDriverAbstract extends \CComponent implements \fileProcessor\extensions\imageHandler\drivers\IMDriver
+abstract class MDriverAbstract extends \CComponent implements IMDriver
 {
 	/**
 	 *
@@ -119,14 +124,14 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 */
 	abstract public function resizeCanvas($width, $height, $backgroundColor = '#FFFFFF');
 
-	abstract protected function _checkLoaded();
+	abstract protected function checkLoaded();
 
 	/**
 	 * @param mixed $image
 	 */
-	abstract protected function _initImage($image = false);
+	abstract protected function initImage($image = false);
 
-	abstract protected function _freeImage();
+	abstract protected function freeImage();
 
 	/**
 	 *
@@ -138,15 +143,13 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 */
 	public function thumb($width, $height, $proportional = true)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
-		if($width !== false)
-		{
+		if ($width !== false) {
 			$width = min($width, $this->_width);
 		}
 
-		if($height !== false)
-		{
+		if ($height !== false) {
 			$height = min($height, $this->_height);
 		}
 
@@ -157,7 +160,7 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 
 	public function adaptiveThumb($width, $height)
 	{
-		$this->_checkLoaded();
+		$this->checkLoaded();
 
 		$width = intval($width);
 		$height = intval($height);
@@ -165,13 +168,10 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 		$widthProportion = $width / $this->_width;
 		$heightProportion = $height / $this->_height;
 
-		if($widthProportion > $heightProportion)
-		{
+		if ($widthProportion > $heightProportion) {
 			$newWidth = $width;
 			$newHeight = round($newWidth / $this->_width * $this->_height);
-		}
-		else
-		{
+		} else {
 			$newHeight = $height;
 			$newWidth = round($newHeight / $this->_height * $this->_width);
 		}
@@ -236,6 +236,7 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	public function setQuality($quality)
 	{
 		$this->_quality = $quality;
+
 		return $this;
 	}
 
@@ -253,7 +254,7 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 * @var string $file path to image file
 	 * @return array
 	 */
-	abstract protected function _loadImage($file);
+	abstract protected function loadImage($file);
 
 	/**
 	 * Load image
@@ -264,14 +265,15 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 */
 	public function load($file)
 	{
-		$this->_freeImage();
+		$this->freeImage();
 
-		if(($this->_originalImage = $this->_loadImage($file)))
-		{
-			$this->_initImage();
+		if (($this->_originalImage = $this->loadImage($file))) {
+			$this->initImage();
 			$this->_fileName = $file;
+
 			return $this;
 		}
+
 		return false;
 	}
 
@@ -282,8 +284,8 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 */
 	public function reload()
 	{
-		$this->_checkLoaded();
-		$this->_initImage();
+		$this->checkLoaded();
+		$this->initImage();
 
 		return $this;
 	}
@@ -300,10 +302,9 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 	 * @return array
 	 * @throws \Exception
 	 */
-	protected function _getCornerPosition($corner, $imageWidth, $imageHeight, $offsetX = 0, $offsetY = 0)
+	protected function getCornerPosition($corner, $imageWidth, $imageHeight, $offsetX = 0, $offsetY = 0)
 	{
-		switch($corner)
-		{
+		switch ($corner) {
 			case self::CORNER_LEFT_TOP:
 				$posX = $offsetX;
 				$posY = $offsetY;
@@ -333,7 +334,6 @@ abstract class MDriverAbstract extends \CComponent implements \fileProcessor\ext
 
 	public function __destruct()
 	{
-		$this->_freeImage();
+		$this->freeImage();
 	}
-
 }

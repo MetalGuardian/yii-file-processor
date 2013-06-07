@@ -1,5 +1,12 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\components;
+
+use fileProcessor\helpers\FPM;
+
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
@@ -55,12 +62,10 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if(!is_dir($dirName))
-		{
+		if (!is_dir($dirName)) {
 			// @TODO: fix this line. @ - is not good
-			if(!@mkdir($dirName, 0777, true))
-			{
-				throw new \CException(\fileProcessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
+			if (!@mkdir($dirName, 0777, true)) {
+				throw new \CException(FPM::t('Can not create directory: ' . dirname($dirName)));
 			}
 		}
 
@@ -81,26 +86,21 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 	 */
 	public function deleteFile($id, $extension = false)
 	{
-		if(!(int)$id)
-		{
+		if (!(int)$id) {
 			return false;
 		}
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if(!$extension)
-		{
-			$metaData = \fileProcessor\helpers\FPM::transfer()->getMetaData($id);
+		if (!$extension) {
+			$metaData = FPM::transfer()->getMetaData($id);
 			$extension = $metaData['extension'];
 		}
 		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . $extension;
 
-		if(is_file($fileName))
-		{
+		if (is_file($fileName)) {
 			$result = unlink($fileName) && $this->deleteMetaData($id) ? true : false;
-		}
-		else
-		{
+		} else {
 			$result = false;
 		}
 

@@ -1,5 +1,10 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor;
+
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua

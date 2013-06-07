@@ -1,5 +1,12 @@
 <?php
+/**
+ *
+ */
+
 namespace fileProcessor\components;
+
+use fileProcessor\helpers\FPM;
+
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
@@ -8,27 +15,31 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 {
 	/**
 	 * File attribute name
+	 *
 	 * @var string
 	 */
 	public $attributeName = 'file_id';
 
 	/**
 	 * Can attribute be empty
+	 *
 	 * @var bool
 	 */
 	public $allowEmpty = true;
 
 	/**
 	 * ActiveRecord scenarios
+	 *
 	 * @var array
 	 */
-	public $scenarios=array('insert','update');
+	public $scenarios = array('insert', 'update');
 
 	/**
 	 * Allowed file types
+	 *
 	 * @var string | array
 	 */
-	public $fileTypes='png, gif, jpeg, jpg';
+	public $fileTypes = 'png, gif, jpeg, jpg';
 
 	/**
 	 * @param \CComponent $owner
@@ -41,18 +52,17 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 		/** @var $owner \CActiveRecord */
 		//$owner = $this->getOwner();
 
-		if(in_array($owner->getScenario(),$this->scenarios, true))
-		{
+		if (in_array($owner->getScenario(), $this->scenarios, true)) {
 			// добавляем валидатор файла, не забываем в параметрах валидатора указать
 			// значение safe как false
-			$fileValidator=\CValidator::createValidator(
+			$fileValidator = \CValidator::createValidator(
 				'file',
 				$owner,
 				$this->attributeName,
 				array(
-					'types'=>$this->fileTypes,
-					'allowEmpty'=>$this->allowEmpty,
-					'safe'=>false,
+					'types' => $this->fileTypes,
+					'allowEmpty' => $this->allowEmpty,
+					'safe' => false,
 				)
 			);
 			$owner->validatorList->add($fileValidator);
@@ -69,31 +79,29 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 		/** @var $owner \CActiveRecord */
 		$owner = $this->getOwner();
 
-		if(in_array($owner->getScenario(),$this->scenarios, true) && $image=\CUploadedFile::getInstance($owner,$this->attributeName))
-		{
+		if (in_array($owner->getScenario(), $this->scenarios, true) && $image = \CUploadedFile::getInstance($owner, $this->attributeName)) {
 			// delete old file
-			$this->_deleteFile();
+			$this->deleteFile();
 
-			$image_id = \fileProcessor\helpers\FPM::transfer()->saveUploadedFile($image);
+			$image_id = FPM::transfer()->saveUploadedFile($image);
 
-			$owner->setAttribute($this->attributeName,$image_id);
+			$owner->setAttribute($this->attributeName, $image_id);
 		}
 	}
 
 	public function beforeDelete($event)
 	{
-		$this->_deleteFile();
+		$this->deleteFile();
 	}
 
-	private function _deleteFile()
+	private function deleteFile()
 	{
 		/** @var $owner \CActiveRecord */
 		$owner = $this->getOwner();
 
-		if($owner->getAttribute($this->attributeName))
-		{
-			$metaData = \fileProcessor\helpers\FPM::transfer()->getMetaData($owner->getAttribute($this->attributeName));
-			\fileProcessor\helpers\FPM::deleteFiles($owner->getAttribute($this->attributeName), $metaData['extension']);
+		if ($owner->getAttribute($this->attributeName)) {
+			$metaData = FPM::transfer()->getMetaData($owner->getAttribute($this->attributeName));
+			FPM::deleteFiles($owner->getAttribute($this->attributeName), $metaData['extension']);
 		}
 	}
 }
