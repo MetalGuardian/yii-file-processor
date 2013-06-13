@@ -45,6 +45,15 @@ class FileTransfer extends HttpFileTransfer
 		return \Yii::app()->db->getLastInsertID();
 	}
 
+	public function saveMetaDataForFile($realName, $ext)
+	{
+		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
+		$command = \Yii::app()->db->createCommand($sql);
+		$command->execute(array(':ext'=>$ext, 'time'=>time(), ':name'=>$realName));
+
+		return \Yii::app()->db->getLastInsertID();
+	}
+
 	/**
 	 * Get file meta information.
 	 * Example:

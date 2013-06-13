@@ -43,6 +43,8 @@ interface IFileTransfer
 	 */
 	public function saveUploadedFile(\CUploadedFile $uploadedFile);
 
+	public function saveFile($file, $ext);
+
 	/**
 	 * Delete file
 	 *
@@ -61,6 +63,8 @@ interface IFileTransfer
 	 * @return integer meta data identifier in persistent storage.
 	 */
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile);
+
+	public function saveMetaDataForFile($realName, $ext);
 
 	/**
 	 * Get file meta information.

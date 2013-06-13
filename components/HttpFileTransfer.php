@@ -76,6 +76,45 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 		return $id;
 	}
 
+	public function saveFile($file, $ext)
+	{
+		$id = $this->saveMetaDataForFile('', $ext);
+
+		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
+
+		if(!is_dir($dirName))
+		{
+			// @TODO: fix this line. @ - is not good
+			if(!@mkdir($dirName, 0777, true))
+			{
+				throw new \CException(\fileProcessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
+			}
+		}
+
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($ext);
+
+		$this->putImage($ext, $file, $fileName);
+
+		return $id;
+	}
+
+	public function putImage($ext,$img,$file = null){
+		switch($ext){
+			case "png":
+				imagepng($img,($file != null ? $file : ''));
+				break;
+			case "jpeg":
+				imagejpeg($img,($file ? $file : ''),90);
+				break;
+			case "jpg":
+				imagejpeg($img,($file ? $file : ''),90);
+				break;
+			case "gif":
+				imagegif($img,($file ? $file : ''));
+				break;
+		}
+	}
+
 	/**
 	 * Delete file
 	 *

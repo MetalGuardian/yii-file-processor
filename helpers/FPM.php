@@ -122,6 +122,15 @@ class FPM
 		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
+	public static function getOriginalFilePathById($id)
+	{
+		$info = self::transfer()->getMetaData($id);
+		if (!$info) {
+			return false;
+		}
+		return self::getOriginalFilePath($id, $info['extension']);
+	}
+
 	public static function getCachedImagePath($id, $model, $size, $ext)
 	{
 		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
