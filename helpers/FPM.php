@@ -144,6 +144,6 @@ class FPM
 
 	public static function getBasePath()
 	{
-		return FPM::m()->basePath ? FPM::m()->basePath : \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+		return FPM::m()->baseDir ? FPM::m()->baseDir : \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 	}
 }

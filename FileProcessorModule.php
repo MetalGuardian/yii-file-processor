@@ -40,9 +40,9 @@ class FileProcessorModule extends \CWebModule
 	/**
 	 * Base path. If non default application structure
 	 *
-	 * @var bool
+	 * @var bool|string
 	 */
-	public $basePath = false;
+	public $baseDir = false;
 	
 	/**
 	 * @var string original files base dir
