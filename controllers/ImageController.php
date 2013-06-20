@@ -65,7 +65,7 @@ class ImageController extends \CController
 
 	public function createCacheDir($id, $model, $type)
 	{
-		$dirName = \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir);
+		$dirName = FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir);
 
 		if (!is_dir($dirName)) {
 			// @TODO: fix this line. @ - is not good

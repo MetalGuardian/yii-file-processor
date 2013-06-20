@@ -119,7 +119,7 @@ class FPM
 
 	public static function getOriginalFilePath($id, $ext)
 	{
-		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
+		return FPM::getBasePath() . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
 	public static function getOriginalFilePathById($id)
@@ -133,12 +133,17 @@ class FPM
 
 	public static function getCachedImagePath($id, $model, $size, $ext)
 	{
-		return \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
+		return FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
 	public static function deleteFiles($fileId, $ext = false)
 	{
 		FPM::cache()->delete($fileId, $ext);
 		FPM::transfer()->deleteFile($fileId, $ext);
+	}
+
+	public static function getBasePath()
+	{
+		return FPM::m()->basePath ? FPM::m()->basePath : \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 	}
 }
