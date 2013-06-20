@@ -36,6 +36,13 @@ class FileProcessorModule extends \CWebModule
 	 * @var integer max images count per dir. 
 	 */
 	public $filesPerDir = 5000;
+
+	/**
+	 * Base path. If non default application structure
+	 *
+	 * @var bool
+	 */
+	public $basePath = false;
 	
 	/**
 	 * @var string original files base dir

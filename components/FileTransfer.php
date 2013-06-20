@@ -15,8 +15,9 @@ class FileTransfer extends HttpFileTransfer
 {
 	public function __construct($baseDestinationDir = null, $maxFilesPerDir = null)
 	{
+		$basePath = FPM::m()->basePath ? FPM::m()->basePath : \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
 		if ($baseDestinationDir === null) {
-			$baseDestinationDir = \Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . FPM::m()->originalBaseDir;
+			$baseDestinationDir = $basePath . FPM::m()->originalBaseDir;
 		}
 
 		if ($maxFilesPerDir === null) {
