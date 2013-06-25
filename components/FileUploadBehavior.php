@@ -85,6 +85,14 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 
 			$image_id = FPM::transfer()->saveUploadedFile($image);
 
+			if ($this->hasEventHandler('onSaveImage')) {
+				$event = new \CEvent($this);
+				$event->params = array(
+					'image_id' => $image_id,
+				);
+				$this->onSaveImage($event);
+			}
+
 			$owner->setAttribute($this->attributeName, $image_id);
 		}
 	}
@@ -103,5 +111,15 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 			$metaData = FPM::transfer()->getMetaData($owner->getAttribute($this->attributeName));
 			FPM::deleteFiles($owner->getAttribute($this->attributeName), $metaData['extension']);
 		}
+	}
+
+	/**
+	 * OnSaveImage event
+	 *
+	 * @param $event
+	 */
+	public function onSaveImage($event)
+	{
+		$this->raiseEvent('onSaveImage', $event);
 	}
 }
