@@ -102,6 +102,10 @@ class FPM
 	 */
 	public static function src($id, $model, $size)
 	{
+		if (!(int) $id) {
+			return null;
+		}
+
 		$metaData = FPM::transfer()->getMetaData($id);
 		$src = FPM::m()->host . FPM::m()->cachedImagesBaseDir . '/' . floor($id / FPM::m()->filesPerDir) . '/' . $model . '_' . $size . '/' . $id . '.' . $metaData['extension'];
 
@@ -110,6 +114,10 @@ class FPM
 
 	public static function originalSrc($id)
 	{
+		if (!(int) $id) {
+			return null;
+		}
+
 		$metaData = FPM::transfer()->getMetaData($id);
 
 		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor($id / FPM::m()->filesPerDir) . '/' . $id . '.' . $metaData['extension'];
@@ -124,6 +132,10 @@ class FPM
 
 	public static function getOriginalFilePathById($id)
 	{
+		if (!(int) $id) {
+			return false;
+		}
+
 		$info = self::transfer()->getMetaData($id);
 		if (!$info) {
 			return false;
@@ -133,11 +145,17 @@ class FPM
 
 	public static function getCachedImagePath($id, $model, $size, $ext)
 	{
+		if (!(int) $id) {
+			return false;
+		}
 		return FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $id . '.' . $ext;
 	}
 
 	public static function deleteFiles($fileId, $ext = false)
 	{
+		if (!(int) $fileId) {
+			return null;
+		}
 		FPM::cache()->delete($fileId, $ext);
 		FPM::transfer()->deleteFile($fileId, $ext);
 	}
