@@ -42,6 +42,71 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 	public $fileTypes = 'png, gif, jpeg, jpg';
 
 	/**
+	 * @var mixed a list of MIME-types of the file that are allowed to be uploaded.
+	 * This can be either an array or a string consisting of MIME-types separated
+	 * by space or comma (e.g. "image/gif, image/jpeg"). MIME-types are
+	 * case-insensitive. Defaults to null, meaning all MIME-types are allowed.
+	 * In order to use this property fileinfo PECL extension should be installed.
+	 * @since 1.1.11
+	 */
+	public $mimeTypes;
+
+	/**
+	 * @var integer the minimum number of bytes required for the uploaded file.
+	 * Defaults to null, meaning no limit.
+	 * @see tooSmall
+	 */
+	public $minSize;
+
+	/**
+	 * @var integer the maximum number of bytes required for the uploaded file.
+	 * Defaults to null, meaning no limit.
+	 * Note, the size limit is also affected by 'upload_max_filesize' INI setting
+	 * and the 'MAX_FILE_SIZE' hidden field value.
+	 * @see tooLarge
+	 */
+	public $maxSize;
+
+	/**
+	 * @var string the error message used when the uploaded file is too large.
+	 * @see maxSize
+	 */
+	public $tooLarge;
+
+	/**
+	 * @var string the error message used when the uploaded file is too small.
+	 * @see minSize
+	 */
+	public $tooSmall;
+
+	/**
+	 * @var string the error message used when the uploaded file has an extension name
+	 * that is not listed among {@link types}.
+	 */
+	public $wrongType;
+
+	/**
+	 * @var string the error message used when the uploaded file has a MIME-type
+	 * that is not listed among {@link mimeTypes}. In order to use this property
+	 * fileinfo PECL extension should be installed.
+	 * @since 1.1.11
+	 */
+	public $wrongMimeType;
+
+	/**
+	 * @var integer the maximum file count the given attribute can hold.
+	 * It defaults to 1, meaning single file upload. By defining a higher number,
+	 * multiple uploads become possible.
+	 */
+	public $maxFiles = 1;
+
+	/**
+	 * @var string the error message used if the count of multiple uploads exceeds
+	 * limit.
+	 */
+	public $tooMany;
+
+	/**
 	 * @param \CComponent $owner
 	 *
 	 * @return void
@@ -63,6 +128,15 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 					'types' => $this->fileTypes,
 					'allowEmpty' => $this->allowEmpty,
 					'safe' => false,
+					'mimeTypes' => $this->mimeTypes,
+					'minSize' => $this->minSize,
+					'maxSize' => $this->maxSize,
+					'tooLarge' => $this->tooLarge,
+					'tooSmall' => $this->tooSmall,
+					'wrongType' => $this->wrongType,
+					'wrongMimeType' => $this->wrongMimeType,
+					'maxFiles' => $this->maxFiles,
+					'tooMany' => $this->tooMany,
 				)
 			);
 			$owner->validatorList->add($fileValidator);
