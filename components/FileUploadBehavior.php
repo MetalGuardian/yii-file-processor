@@ -167,7 +167,10 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 				$this->onSaveImage($event);
 			}
 
-			$owner->setAttribute($this->attributeName, $image_id);
+			$isset = $owner->setAttribute($this->attributeName, $image_id);
+			if (!$isset && $owner->asa('multiLang')) {
+				$owner->setLangAttribute($this->attributeName, $image_id);
+			}
 		}
 	}
 
