@@ -21,10 +21,14 @@ class ImageController extends \CController
 		\Yii::app()->errorHandler->errorAction = $this->route . '/error';
 	}
 
-	public function actionResize($model, $type, $id, $ext)
+	public function actionResize($model, $type, $id, $fileName, $ext)
 	{
 		$file = FPM::getOriginalFilePath($id, $ext);
 		if (file_exists($file)) {
+			$meta = FPM::transfer()->getMetaData($id);
+			if (!(is_array($meta) && isset($meta['real_name']) && $fileName . '.' . $ext === $meta['real_name'])) {
+				throw new \CHttpException(404, FPM::t('File not found'));
+			}
 			/** @var $ih \fileProcessor\extensions\imageHandler\drivers\MDriverAbstract|\fileProcessor\extensions\imageHandler\MImageHandler */
 			$ih = \Yii::createComponent(FPM::m()->imageHandler);
 			$ih->init();
@@ -32,7 +36,7 @@ class ImageController extends \CController
 			if (!$config) {
 				throw new \CHttpException(400, FPM::t('Incorrect request'));
 			}
-			$thumbFile = FPM::getCachedImagePath($id, $model, $type, $ext);
+			$thumbFile = FPM::getCachedImagePath($id, $model, $type, $fileName);
 
 			$this->createCacheDir($id, $model, $type);
 

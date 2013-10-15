@@ -14,12 +14,13 @@ use fileProcessor\helpers\FPM;
 class YiiFileProcessorUrlRule extends \CBaseUrlRule
 {
 	protected $urlParams = array(
-		'\/(\d+)\/(\w+)_(\w+)\/(\d+)\.(png|gif|jpg|jpeg)' => array(
+		'\/(\d+)\/(\w+)_(\w+)\/(\d+)-(.*)\.(png|gif|jpg|jpeg)' => array(
 			1 => 'sub',
 			2 => 'model',
 			3 => 'type',
 			4 => 'id',
-			5 => 'ext',
+			5 => 'fileName',
+			6 => 'ext',
 		),
 	);
 	/**

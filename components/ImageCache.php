@@ -17,21 +17,17 @@ class ImageCache implements IImageCache
 	 *
 	 * @return void
 	 */
-	public function delete($id, $ext = false)
+	public function delete($id)
 	{
-		if (!$ext) {
-			$metaData = FPM::transfer()->getMetaData($id);
-			$ext = $metaData['extension'];
-		}
-
-		if (!in_array($ext, array('png', 'jpeg', 'jpg', 'gif'), true)) {
+		$metaData = FPM::transfer()->getMetaData($id);
+		if (!in_array($metaData['extension'], array('png', 'jpeg', 'jpg', 'gif'), true)) {
 			return;
 		}
 
 		$config = FPM::m()->imageSections;
 		foreach ($config as $modelKey => $model) {
 			foreach ($model as $typeKey => $type) {
-				$fileName = FPM::getCachedImagePath($id, $modelKey, $typeKey, $ext);
+				$fileName = FPM::getCachedImagePath($id, $modelKey, $typeKey, $metaData['real_name']);
 				if (is_file($fileName)) {
 					unlink($fileName);
 				}
