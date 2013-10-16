@@ -1,0 +1,12 @@
+{
+	"name":"metalguardian/yii-file-processor",
+	"authors":[
+		{
+			"name":"Ivan Pushkin"
+		}
+	],
+	"license": "MIT",
+	"autoload": {
+		"psr-0": {"fileProcessor\\": "/"}
+	}
+}
