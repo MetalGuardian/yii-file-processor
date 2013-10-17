@@ -36,7 +36,7 @@ class ImageController extends \CController
 			if (!$config) {
 				throw new \CHttpException(400, FPM::t('Incorrect request'));
 			}
-			$thumbFile = FPM::getCachedImagePath($id, $model, $type, $fileName . '.' . $ext);
+			$thumbFile = FPM::getCachedImagePath($id, $model, $type, $id . '-' . $meta['real_name']);
 
 			$this->createCacheDir($id, $model, $type);
 
