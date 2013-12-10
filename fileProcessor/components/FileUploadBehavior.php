@@ -126,7 +126,7 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 				$this->attributeName,
 				array(
 					'types' => $this->fileTypes,
-					'allowEmpty' => $this->allowEmpty,
+					'allowEmpty' => $this->allowEmpty || $owner->{$this->attributeName},
 					'safe' => false,
 					'mimeTypes' => $this->mimeTypes,
 					'minSize' => $this->minSize,
