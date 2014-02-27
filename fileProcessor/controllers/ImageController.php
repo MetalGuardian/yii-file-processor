@@ -31,7 +31,7 @@ class ImageController extends CController
 				throw new \CHttpException(404, 'File not found');
 			}
 			/** @var $ih \fileProcessor\extensions\imageHandler\drivers\MDriverAbstract|\fileProcessor\extensions\imageHandler\MImageHandler */
-			$ih = \Yii::createComponent(FPM::m()->imageHandler);
+			$ih = \Yii::createComponent(FPM::m()->getImageHandler());
 			$ih->init();
 			$config = isset(FPM::m()->imageSections[$model]) && isset(FPM::m()->imageSections[$model][$type]) ? FPM::m()->imageSections[$model][$type] : null;
 			if (!$config) {

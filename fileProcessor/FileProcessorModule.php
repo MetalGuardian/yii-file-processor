@@ -131,7 +131,8 @@ class FileProcessorModule extends \CWebModule
 	}
 
 	/**
-	 * @return string
+	 * @throws CException
+	 * @return CDBConnection
 	 */
 	public function getDb()
 	{

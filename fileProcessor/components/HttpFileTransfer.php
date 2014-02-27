@@ -78,7 +78,7 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 			}
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' .$uploadedFile->getName() . '.' . \mb_strtolower($uploadedFile->getExtensionName());
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($uploadedFile->getExtensionName());
 
 		$uploadedFile->saveAs($fileName);
 

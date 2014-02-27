@@ -46,10 +46,10 @@ class FileTransfer extends HttpFileTransfer
 
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		/** @var CDbCommand $command */
-		$command = FPM::m()->db->createCommand($sql);
+		$command = FPM::m()->getDb()->createCommand($sql);
 		$command->execute(array(':ext' => $ext, ':time' => time(), ':name' => $realName));
 
-		return FPM::m()->db->getLastInsertID();
+		return FPM::m()->getDb()->getLastInsertID();
 	}
 
 	/**
@@ -62,10 +62,10 @@ class FileTransfer extends HttpFileTransfer
 	{
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		/** @var CDbCommand $command */
-		$command = FPM::m()->db->createCommand($sql);
+		$command = FPM::m()->getDb()->createCommand($sql);
 		$command->execute(array(':ext' => $ext, ':time' => time(), ':name' => $realName));
 
-		return FPM::m()->db->getLastInsertID();
+		return FPM::m()->getDb()->getLastInsertID();
 	}
 
 	/**
@@ -93,7 +93,7 @@ class FileTransfer extends HttpFileTransfer
 
 		if (false === $row || !is_array($row)) {
 			/** @var CDbCommand $command */
-			$command = FPM::m()->db->createCommand()
+			$command = FPM::m()->getDb()->createCommand()
 				->select($fields)
 				->from('{{file}}')
 				->where('id = :iid', array(':iid' => $id));
@@ -122,7 +122,7 @@ class FileTransfer extends HttpFileTransfer
 		}
 		$sql = 'DELETE FROM {{file}} WHERE id = :iid';
 		/** @var CDbCommand $command */
-		$command = FPM::m()->db->createCommand($sql);
+		$command = FPM::m()->getDb()->createCommand($sql);
 
 		return $command->execute(array(':iid' => $id));
 	}
