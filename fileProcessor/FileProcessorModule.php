@@ -6,6 +6,8 @@
 namespace fileProcessor;
 
 use CDBConnection;
+use CException;
+use Yii;
 
 /**
  * Author: Ivan Pushkin
@@ -21,7 +23,7 @@ class FileProcessorModule extends \CWebModule
 	/**
 	 * Db component name
 	 *
-	 * @var string|CDBConnection
+	 * @var string
 	 */
 	public $db = 'db';
 
@@ -126,5 +128,16 @@ class FileProcessorModule extends \CWebModule
 			$this->_imageHandler,
 			$imageHandler
 		);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDb()
+	{
+		if (Yii::app()->hasComponent($this->db)) {
+			return Yii::app()->getComponent($this->db);
+		}
+		throw new CException('Db component not created');
 	}
 }
