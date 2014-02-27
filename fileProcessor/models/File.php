@@ -6,23 +6,26 @@
 
 namespace fileProcessor\models;
 
-use fileProcessor\components\base\FileProcessorModuleActiveRecord;
+use CActiveRecord;
 use fileProcessor\helpers\FPM;
 
 /**
  * This is the model class for table "{{file}}".
  *
  * The followings are the available columns in table '{{file}}':
+ *
  * @property string $id
  * @property string $extension
  * @property string $real_name
  * @property string $created
  */
-class File extends FileProcessorModuleActiveRecord
+class File extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
+	 *
 	 * @param string $className active record class name.
+	 *
 	 * @return File the static model class
 	 */
 	public static function model($className = __CLASS__)
@@ -45,11 +48,11 @@ class File extends FileProcessorModuleActiveRecord
 	{
 		return array(
 			array('extension, created', 'required'),
-			array('extension, created', 'length', 'max'=>10),
-			array('real_name', 'length', 'max'=>50),
+			array('extension, created', 'length', 'max' => 10),
+			array('real_name', 'length', 'max' => 50),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, extension, real_name, created', 'safe', 'on'=>'search'),
+			array('id, extension, real_name, created', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -58,8 +61,7 @@ class File extends FileProcessorModuleActiveRecord
 	 */
 	public function relations()
 	{
-		return array(
-		);
+		return array();
 	}
 
 	/**
@@ -68,10 +70,10 @@ class File extends FileProcessorModuleActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'id' => FPM::t('ID'),
-			'extension' => FPM::t('Extension'),
-			'real_name' => FPM::t('Real Name'),
-			'created' => FPM::t('Created'),
+			'id' => 'ID',
+			'extension' => 'Extension',
+			'real_name' => 'Real Name',
+			'created' => 'Created',
 		);
 	}
 

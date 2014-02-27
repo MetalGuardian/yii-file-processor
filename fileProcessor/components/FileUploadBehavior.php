@@ -153,7 +153,11 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 		/** @var $owner \CActiveRecord */
 		$owner = $this->getOwner();
 
-		if (in_array($owner->getScenario(), $this->scenarios, true) && $image = \CUploadedFile::getInstance($owner, $this->attributeName)) {
+		if (in_array($owner->getScenario(), $this->scenarios, true) && $image = \CUploadedFile::getInstance(
+				$owner,
+				$this->attributeName
+			)
+		) {
 			// delete old file
 			$this->deleteFile();
 

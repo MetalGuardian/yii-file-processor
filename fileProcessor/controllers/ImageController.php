@@ -5,13 +5,14 @@
 
 namespace fileProcessor\controllers;
 
+use CController;
 use fileProcessor\helpers\FPM;
 
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-class ImageController extends \CController
+class ImageController extends CController
 {
 	public $layout = false;
 
@@ -27,14 +28,14 @@ class ImageController extends \CController
 		if (file_exists($file)) {
 			$meta = FPM::transfer()->getMetaData($id);
 			if (!(is_array($meta) && isset($meta['real_name']) && $fileName . '.' . $ext === $meta['real_name'])) {
-				throw new \CHttpException(404, FPM::t('File not found'));
+				throw new \CHttpException(404, 'File not found');
 			}
 			/** @var $ih \fileProcessor\extensions\imageHandler\drivers\MDriverAbstract|\fileProcessor\extensions\imageHandler\MImageHandler */
 			$ih = \Yii::createComponent(FPM::m()->imageHandler);
 			$ih->init();
 			$config = isset(FPM::m()->imageSections[$model]) && isset(FPM::m()->imageSections[$model][$type]) ? FPM::m()->imageSections[$model][$type] : null;
 			if (!$config) {
-				throw new \CHttpException(400, FPM::t('Incorrect request'));
+				throw new \CHttpException(400, 'Incorrect request');
 			}
 			$thumbFile = FPM::getCachedImagePath($id, $model, $type, $id . '-' . $meta['real_name']);
 
@@ -62,7 +63,7 @@ class ImageController extends \CController
 			$ih->save($thumbFile, false, $config['quality']);
 			$ih->show(false, $config['quality']);
 		} else {
-			throw new \CHttpException(404, FPM::t('File not found'));
+			throw new \CHttpException(404, 'File not found');
 		}
 		\Yii::app()->end();
 	}
@@ -74,7 +75,7 @@ class ImageController extends \CController
 		if (!is_dir($dirName)) {
 			// @TODO: fix this line. @ - is not good
 			if (!@mkdir($dirName, 0777, true)) {
-				throw new \CException(FPM::t('Can not create directory: ' . dirname($dirName)));
+				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}
 
@@ -83,7 +84,7 @@ class ImageController extends \CController
 		if (!is_dir($subPath)) {
 			// @TODO: fix this line. @ - is not good
 			if (!@mkdir($subPath, 0777, true)) {
-				throw new \CException(FPM::t('Can not create directory: ' . dirname($subPath)));
+				throw new \CException('Can not create directory: ' . dirname($subPath));
 			}
 		}
 	}

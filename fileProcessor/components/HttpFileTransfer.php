@@ -5,22 +5,31 @@
 
 namespace fileProcessor\components;
 
+use CComponent;
+use fileProcessor\components\IFileTransfer;
 use fileProcessor\helpers\FPM;
 
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\components\IFileTransfer
+abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 {
+	/**
+	 * @var null|string
+	 */
 	private $_baseDestinationDir;
+
+	/**
+	 * @var int|null
+	 */
 	private $_maxFilesPerDir;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param string  $baseDestinationDir base destination dir for transfer.
-	 * @param integer $maxFilesPerDir     maximum files count per dir.
+	 * @param string $baseDestinationDir base destination dir for transfer.
+	 * @param integer $maxFilesPerDir maximum files count per dir.
 	 */
 	public function __construct($baseDestinationDir = null, $maxFilesPerDir = null)
 	{
@@ -65,29 +74,34 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 		if (!is_dir($dirName)) {
 			// @TODO: fix this line. @ - is not good
 			if (!@mkdir($dirName, 0777, true)) {
-				throw new \CException(FPM::t('Can not create directory: ' . dirname($dirName)));
+				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($uploadedFile->getExtensionName());
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' .$uploadedFile->getName() . '.' . \mb_strtolower($uploadedFile->getExtensionName());
 
 		$uploadedFile->saveAs($fileName);
 
 		return $id;
 	}
 
+	/**
+	 * @param $file
+	 * @param $ext
+	 *
+	 * @return mixed
+	 * @throws \CException
+	 */
 	public function saveFile($file, $ext)
 	{
 		$id = $this->saveMetaDataForFile('', $ext);
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if(!is_dir($dirName))
-		{
+		if (!is_dir($dirName)) {
 			// @TODO: fix this line. @ - is not good
-			if(!@mkdir($dirName, 0777, true))
-			{
-				throw new \CException(\fileProcessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
+			if (!@mkdir($dirName, 0777, true)) {
+				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}
 
@@ -98,19 +112,25 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 		return $id;
 	}
 
-	public function putImage($ext,$img,$file = null){
-		switch($ext){
+	/**
+	 * @param $ext
+	 * @param $img
+	 * @param null $file
+	 */
+	public function putImage($ext, $img, $file = null)
+	{
+		switch ($ext) {
 			case "png":
-				imagepng($img,($file != null ? $file : ''));
+				imagepng($img, ($file != null ? $file : ''));
 				break;
 			case "jpeg":
-				imagejpeg($img,($file ? $file : ''),90);
+				imagejpeg($img, ($file ? $file : ''), 90);
 				break;
 			case "jpg":
-				imagejpeg($img,($file ? $file : ''),90);
+				imagejpeg($img, ($file ? $file : ''), 90);
 				break;
 			case "gif":
-				imagegif($img,($file ? $file : ''));
+				imagegif($img, ($file ? $file : ''));
 				break;
 		}
 	}
@@ -118,7 +138,7 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 	/**
 	 * Delete file
 	 *
-	 * @param integer     $id        file id
+	 * @param integer $id file id
 	 * @param bool|string $extension file extension
 	 *
 	 * @return boolean

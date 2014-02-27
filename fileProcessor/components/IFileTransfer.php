@@ -43,6 +43,12 @@ interface IFileTransfer
 	 */
 	public function saveUploadedFile(\CUploadedFile $uploadedFile);
 
+	/**
+	 * @param $file
+	 * @param $ext
+	 *
+	 * @return mixed
+	 */
 	public function saveFile($file, $ext);
 
 	/**
@@ -64,6 +70,12 @@ interface IFileTransfer
 	 */
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile);
 
+	/**
+	 * @param $realName
+	 * @param $ext
+	 *
+	 * @return mixed
+	 */
 	public function saveMetaDataForFile($realName, $ext);
 
 	/**
