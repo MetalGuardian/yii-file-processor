@@ -5,6 +5,7 @@
 
 namespace fileProcessor\helpers;
 
+use CHtml;
 use Yii;
 
 /**
@@ -79,7 +80,7 @@ class FPM
 			return null;
 		}
 
-		return \CHtml::image(self::src($id, $moduleId, $size), $alt, $htmlOptions);
+		return CHtml::image(self::src($id, $moduleId, $size), $alt, $htmlOptions);
 	}
 
 	/**
@@ -95,7 +96,7 @@ class FPM
 			return null;
 		}
 
-		return \CHtml::image(self::originalSrc($id), $alt, $htmlOptions);
+		return CHtml::image(self::originalSrc($id), $alt, $htmlOptions);
 	}
 
 	/**
@@ -117,7 +118,7 @@ class FPM
 		$metaData = FPM::transfer()->getMetaData($id);
 		$src = FPM::m()->host . FPM::m()->cachedImagesBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
-			) . '/' . $model . '_' . $size . '/' . $id . '-' . $metaData['real_name'];
+			) . '/' . $model . '_' . $size . '/' . $id . '-' . $metaData['real_name'] . '.' . $metaData['extension'];
 
 		return $src;
 	}
@@ -137,7 +138,7 @@ class FPM
 
 		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
-			) . '/' . $id . '.' . $metaData['extension'];
+			) . '/' . $id . '-' . $metaData['real_name'] . '.' . $metaData['extension'];
 
 		return $src;
 	}
@@ -148,11 +149,11 @@ class FPM
 	 *
 	 * @return string
 	 */
-	public static function getOriginalFilePath($id, $ext)
+	public static function getOriginalFilePath($id, $fileName, $ext)
 	{
 		return FPM::getBasePath() . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor(
 			$id / FPM::m()->filesPerDir
-		) . DIRECTORY_SEPARATOR . $id . '.' . $ext;
+		) . DIRECTORY_SEPARATOR . $id . '-' . $fileName . '.' . $ext;
 	}
 
 	/**
@@ -166,12 +167,12 @@ class FPM
 			return false;
 		}
 
-		$info = self::transfer()->getMetaData($id);
-		if (!$info) {
+		$meta = self::transfer()->getMetaData($id);
+		if (!$meta) {
 			return false;
 		}
 
-		return self::getOriginalFilePath($id, $info['extension']);
+		return self::getOriginalFilePath($id, $meta['real_name'], $meta['extension']);
 	}
 
 	/**
@@ -182,7 +183,7 @@ class FPM
 	 *
 	 * @return bool|string
 	 */
-	public static function getCachedImagePath($id, $model, $size, $fileName)
+	public static function getCachedImagePath($id, $model, $size, $file)
 	{
 		if (!(int)$id) {
 			return false;
@@ -190,22 +191,22 @@ class FPM
 
 		return FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor(
 			$id / FPM::m()->filesPerDir
-		) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $fileName;
+		) . DIRECTORY_SEPARATOR . $model . '_' . $size . DIRECTORY_SEPARATOR . $file;
 	}
 
 	/**
-	 * @param $fileId
-	 * @param bool $ext
+	 * @param $id
 	 *
 	 * @return null
 	 */
-	public static function deleteFiles($fileId, $ext = false)
+	public static function deleteFiles($id)
 	{
-		if (!(int)$fileId) {
+		if (!(int)$id) {
 			return null;
 		}
-		FPM::cache()->delete($fileId, $ext);
-		FPM::transfer()->deleteFile($fileId, $ext);
+		FPM::cache()->delete($id);
+		FPM::transfer()->deleteFile($id);
+		return true;
 	}
 
 	/**
@@ -215,5 +216,33 @@ class FPM
 	{
 		return FPM::m()->baseDir ? FPM::m()->baseDir
 			: Yii::app()->basePath . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+	}
+
+	/**
+	 * @param $id
+	 * @param $model
+	 * @param $type
+	 *
+	 * @throws \CException
+	 */
+	public static function createCacheDir($id, $model, $type)
+	{
+		$dirName = FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir);
+
+		if (!is_dir($dirName)) {
+			// @TODO: fix this line. @ - is not good
+			if (!@mkdir($dirName, 0777, true)) {
+				throw new \CException('Can not create directory: ' . dirname($dirName));
+			}
+		}
+
+		$subPath = $dirName . DIRECTORY_SEPARATOR . $model . '_' . $type;
+
+		if (!is_dir($subPath)) {
+			// @TODO: fix this line. @ - is not good
+			if (!@mkdir($subPath, 0777, true)) {
+				throw new \CException('Can not create directory: ' . dirname($subPath));
+			}
+		}
 	}
 }

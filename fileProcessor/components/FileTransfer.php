@@ -42,7 +42,7 @@ class FileTransfer extends HttpFileTransfer
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile)
 	{
 		$ext = \mb_strtolower($uploadedFile->getExtensionName(), 'UTF-8');
-		$realName = \mb_strtolower($uploadedFile->getName(), 'UTF-8');
+		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
 
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		/** @var CDbCommand $command */
@@ -53,13 +53,14 @@ class FileTransfer extends HttpFileTransfer
 	}
 
 	/**
-	 * @param $realName
-	 * @param $ext
+	 * @param $file
 	 *
 	 * @return mixed
 	 */
-	public function saveMetaDataForFile($realName, $ext)
+	public function saveMetaDataForFile($file)
 	{
+		$ext = pathinfo($file, PATHINFO_EXTENSION);
+		$realName = pathinfo($file, PATHINFO_FILENAME);
 		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
 		/** @var CDbCommand $command */
 		$command = FPM::m()->getDb()->createCommand($sql);

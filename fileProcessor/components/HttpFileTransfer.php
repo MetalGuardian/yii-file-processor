@@ -78,7 +78,7 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 			}
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($uploadedFile->getExtensionName());
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . rtrim($uploadedFile->getName(), '.' . $uploadedFile->getExtensionName()) . '.' . \mb_strtolower($uploadedFile->getExtensionName());
 
 		$uploadedFile->saveAs($fileName);
 
@@ -87,14 +87,15 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 
 	/**
 	 * @param $file
-	 * @param $ext
 	 *
 	 * @return mixed
 	 * @throws \CException
 	 */
-	public function saveFile($file, $ext)
+	public function saveFile($file)
 	{
-		$id = $this->saveMetaDataForFile('', $ext);
+		$id = $this->saveMetaDataForFile($file);
+		$realName = pathinfo($file, PATHINFO_FILENAME);
+		$ext = \mb_strtolower(pathinfo($file, PATHINFO_EXTENSION), 'UTF-8');
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
@@ -105,7 +106,7 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 			}
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($ext);
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . '.' . $ext;
 
 		$this->putImage($ext, $file, $fileName);
 
@@ -121,16 +122,16 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 	{
 		switch ($ext) {
 			case "png":
-				imagepng($img, ($file != null ? $file : ''));
+				imagepng($img, $file, 100);
 				break;
 			case "jpeg":
-				imagejpeg($img, ($file ? $file : ''), 90);
+				imagejpeg($img, $file, 100);
 				break;
 			case "jpg":
-				imagejpeg($img, ($file ? $file : ''), 90);
+				imagejpeg($img, $file, 100);
 				break;
 			case "gif":
-				imagegif($img, ($file ? $file : ''));
+				imagegif($img, $file);
 				break;
 		}
 	}
@@ -139,11 +140,10 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 	 * Delete file
 	 *
 	 * @param integer $id file id
-	 * @param bool|string $extension file extension
 	 *
 	 * @return boolean
 	 */
-	public function deleteFile($id, $extension = false)
+	public function deleteFile($id)
 	{
 		if (!(int)$id) {
 			return false;
@@ -151,11 +151,8 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if (!$extension) {
-			$metaData = FPM::transfer()->getMetaData($id);
-			$extension = $metaData['extension'];
-		}
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . $extension;
+		$meta = FPM::transfer()->getMetaData($id);
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $meta['real_name'] . '.' . $meta['extension'];
 
 		if (is_file($fileName)) {
 			$result = unlink($fileName) && $this->deleteMetaData($id) ? true : false;
