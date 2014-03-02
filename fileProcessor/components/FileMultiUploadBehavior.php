@@ -161,9 +161,9 @@ class FileMultiUploadBehavior extends CActiveRecordBehavior
 				$this->scenarios,
 				true
 			) && ($files = CUploadedFile::getInstances(
-					$owner,
-					'fileUploader'
-				)) && !empty($files)
+				$owner,
+				'fileUploader'
+			)) && !empty($files)
 		) {
 			/** @var CUploadedFile[] $files */
 			foreach ($files as $file) {
@@ -213,6 +213,22 @@ class FileMultiUploadBehavior extends CActiveRecordBehavior
 		foreach ($files as $fileId) {
 			FPM::deleteFiles($fileId);
 		}
+	}
+
+	/**
+	 * Return array of file ids
+	 *
+	 * @return array
+	 */
+	public function getRelatedFiles()
+	{
+		/** @var ActiveRecord $owner */
+		$owner = $this->getOwner();
+		$files = FPM::m()->getDb()->createCommand()->select(array('file_id'))->from(FPM::m()->relatedTableName)->where(
+			'model_id = :mid AND model_class = :mclass'
+		)->queryColumn(array(':mid' => $owner->getPrimaryKey(), ':mclass' => $owner->getClassName(),));
+
+		return $files;
 	}
 
 	/**
