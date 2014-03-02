@@ -1,4 +1,5 @@
 <?php
+use fileProcessor\helpers\FPM;
 
 /**
  * Class m121019_141942_create_file_table
@@ -8,7 +9,7 @@ class m121019_141942_create_file_table extends CDbMigration
 	public function up()
 	{
 		$this->createTable(
-			\fileProcessor\helpers\FPM::m()->tableName,
+			FPM::m()->tableName,
 			array(
 				'id' => 'INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT',
 				'extension' => 'VARCHAR(10) NOT NULL COMMENT "extension of the file"',
@@ -22,6 +23,6 @@ class m121019_141942_create_file_table extends CDbMigration
 
 	public function down()
 	{
-		$this->dropTable(\fileProcessor\helpers\FPM::m()->tableName);
+		$this->dropTable(FPM::m()->tableName);
 	}
 }

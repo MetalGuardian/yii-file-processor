@@ -35,11 +35,18 @@ class FileProcessorModule extends \CWebModule
 	public $cache = 'cache';
 
 	/**
-	 * Default table name
+	 * Default table name for files
 	 *
 	 * @var string
 	 */
 	public $tableName = '{{fpm_file}}';
+
+	/**
+	 * Default table name for table for related files
+	 *
+	 * @var string
+	 */
+	public $relatedTableName = '{{fpm_file_related}}';
 
 	/**
 	 * Cache expire time
