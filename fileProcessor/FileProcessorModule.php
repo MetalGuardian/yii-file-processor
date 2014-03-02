@@ -63,12 +63,12 @@ class FileProcessorModule extends \CWebModule
 	/**
 	 * @var string original files base dir
 	 */
-	public $originalBaseDir = 'imageOriginal';
+	public $originalBaseDir = 'uploads';
 
 	/**
 	 * @var string cached images base dir
 	 */
-	public $cachedImagesBaseDir = 'imageCached';
+	public $cachedImagesBaseDir = 'uploads/thumb';
 
 	/**
 	 * @var array all project images definition.
@@ -80,14 +80,14 @@ class FileProcessorModule extends \CWebModule
 	 *                'small' => array(
 	 *                    'width' => '151',
 	 *                    'height' => '157',
-	 *                    'type' => 'jpg',
 	 *                    'quality' => 80,
+	 *                    'do' => 'resize', // resize|adaptiveResize
 	 *                ),
 	 *                'medium' => array(
 	 *                    'width' => '500',
 	 *                    'height' => '500',
-	 *                    'type' => 'jpg',
 	 *                    'quality' => 80,
+	 *                    'do' => 'resize', // resize|adaptiveResize
 	 *                ),
 	 *            ),
 	 *        )
