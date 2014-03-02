@@ -77,8 +77,10 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}
+		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
+		$ext = \mb_strtolower(pathinfo($uploadedFile->getName(), PATHINFO_EXTENSION), 'UTF-8');
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . rtrim($uploadedFile->getName(), '.' . $uploadedFile->getExtensionName()) . '.' . \mb_strtolower($uploadedFile->getExtensionName());
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . '.' . $ext;
 
 		$uploadedFile->saveAs($fileName);
 
