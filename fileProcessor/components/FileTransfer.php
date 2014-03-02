@@ -44,10 +44,10 @@ class FileTransfer extends HttpFileTransfer
 		$ext = \mb_strtolower($uploadedFile->getExtensionName(), 'UTF-8');
 		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
 
-		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
-		/** @var CDbCommand $command */
-		$command = FPM::m()->getDb()->createCommand($sql);
-		$command->execute(array(':ext' => $ext, ':time' => time(), ':name' => $realName));
+		FPM::m()->getDb()->createCommand()->insert(
+			FPM::m()->tableName,
+			array('extension' => $ext, 'real_name' => $realName)
+		);
 
 		return FPM::m()->getDb()->getLastInsertID();
 	}
@@ -61,10 +61,10 @@ class FileTransfer extends HttpFileTransfer
 	{
 		$ext = pathinfo($file, PATHINFO_EXTENSION);
 		$realName = pathinfo($file, PATHINFO_FILENAME);
-		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
-		/** @var CDbCommand $command */
-		$command = FPM::m()->getDb()->createCommand($sql);
-		$command->execute(array(':ext' => $ext, ':time' => time(), ':name' => $realName));
+		FPM::m()->getDb()->createCommand()->insert(
+			FPM::m()->tableName,
+			array('extension' => $ext, 'real_name' => $realName)
+		);
 
 		return FPM::m()->getDb()->getLastInsertID();
 	}
@@ -96,7 +96,7 @@ class FileTransfer extends HttpFileTransfer
 			/** @var CDbCommand $command */
 			$command = FPM::m()->getDb()->createCommand()
 				->select($fields)
-				->from('{{file}}')
+				->from(FPM::m()->tableName)
 				->where('id = :iid', array(':iid' => $id));
 			$row = $command->queryRow();
 			if ($cache) {
@@ -121,10 +121,11 @@ class FileTransfer extends HttpFileTransfer
 			$cache = Yii::app()->getComponent(FPM::m()->cache);
 			$cache->delete(FPM::m()->CACHE_PREFIX . '#' . $id);
 		}
-		$sql = 'DELETE FROM {{file}} WHERE id = :iid';
-		/** @var CDbCommand $command */
-		$command = FPM::m()->getDb()->createCommand($sql);
 
-		return $command->execute(array(':iid' => $id));
+		return (boolean)FPM::m()->getDb()->createCommand()->delete(
+			FPM::m()->tableName,
+			'id = :id',
+			array(':id' => $id)
+		);
 	}
 }
