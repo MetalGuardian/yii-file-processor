@@ -5,13 +5,19 @@
 
 namespace fileProcessor\components;
 
+use CActiveRecord;
+use CActiveRecordBehavior;
+use CEvent;
+use CModelEvent;
+use CUploadedFile;
+use CValidator;
 use fileProcessor\helpers\FPM;
 
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-class FileUploadBehavior extends \CActiveRecordBehavior
+class FileUploadBehavior extends CActiveRecordBehavior
 {
 	/**
 	 * File attribute name
@@ -32,7 +38,7 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 	 *
 	 * @var array
 	 */
-	public $scenarios = array('insert', 'update');
+	public $scenarios = array('insert', 'update', );
 
 	/**
 	 * Allowed file types
@@ -94,33 +100,20 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 	public $wrongMimeType;
 
 	/**
-	 * @var integer the maximum file count the given attribute can hold.
-	 * It defaults to 1, meaning single file upload. By defining a higher number,
-	 * multiple uploads become possible.
+	 * Responds to {@link CModel::onBeforeValidate} event.
+	 * Override this method and make it public if you want to handle the corresponding event
+	 * of the {@link owner}.
+	 * You may set {@link CModelEvent::isValid} to be false to quit the validation process.
+	 * @param CModelEvent $event event parameter
 	 */
-	public $maxFiles = 1;
-
-	/**
-	 * @var string the error message used if the count of multiple uploads exceeds
-	 * limit.
-	 */
-	public $tooMany;
-
-	/**
-	 * @param \CComponent $owner
-	 *
-	 * @return void
-	 */
-	public function attach($owner)
+	public function beforeValidate($event)
 	{
-		parent::attach($owner);
-		/** @var $owner \CActiveRecord */
-		//$owner = $this->getOwner();
-
+		/** @var CActiveRecord $owner */
+		$owner = $this->getOwner();
 		if (in_array($owner->getScenario(), $this->scenarios, true)) {
 			// добавляем валидатор файла, не забываем в параметрах валидатора указать
 			// значение safe как false
-			$fileValidator = \CValidator::createValidator(
+			$fileValidator = CValidator::createValidator(
 				'file',
 				$owner,
 				$this->attributeName,
@@ -135,25 +128,23 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 					'tooSmall' => $this->tooSmall,
 					'wrongType' => $this->wrongType,
 					'wrongMimeType' => $this->wrongMimeType,
-					'maxFiles' => $this->maxFiles,
-					'tooMany' => $this->tooMany,
 				)
 			);
 			$owner->validatorList->add($fileValidator);
 		}
 	}
 
+
 	/**
-	 * @param \CModelEvent $event
+	 * @param CModelEvent $event
 	 *
 	 * @return bool|void
 	 */
 	public function beforeSave($event)
 	{
-		/** @var $owner \CActiveRecord */
+		/** @var $owner CActiveRecord */
 		$owner = $this->getOwner();
-
-		if (in_array($owner->getScenario(), $this->scenarios, true) && $image = \CUploadedFile::getInstance(
+		if (in_array($owner->getScenario(), $this->scenarios, true) && $image = CUploadedFile::getInstance(
 				$owner,
 				$this->attributeName
 			)
@@ -164,20 +155,24 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 			$image_id = FPM::transfer()->saveUploadedFile($image);
 
 			if ($this->hasEventHandler('onSaveImage')) {
-				$event = new \CEvent($this);
+				$event = new CEvent($this);
 				$event->params = array(
 					'image_id' => $image_id,
 				);
 				$this->onSaveImage($event);
 			}
 
-			$isset = $owner->setAttribute($this->attributeName, $image_id);
-			if (!$isset && $owner->asa('multiLang')) {
-				$owner->setLangAttribute($this->attributeName, $image_id);
-			}
+			$owner->{$this->attributeName} = $image_id;
 		}
 	}
 
+	/**
+	 * Responds to {@link CActiveRecord::onBeforeDelete} event.
+	 * Override this method and make it public if you want to handle the corresponding event
+	 * of the {@link CBehavior::owner owner}.
+	 * You may set {@link CModelEvent::isValid} to be false to quit the deletion process.
+	 * @param CEvent $event event parameter
+	 */
 	public function beforeDelete($event)
 	{
 		$this->deleteFile();
@@ -185,7 +180,7 @@ class FileUploadBehavior extends \CActiveRecordBehavior
 
 	private function deleteFile()
 	{
-		/** @var $owner \CActiveRecord */
+		/** @var $owner CActiveRecord */
 		$owner = $this->getOwner();
 
 		if ($owner->getAttribute($this->attributeName)) {
