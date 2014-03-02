@@ -116,9 +116,10 @@ class FPM
 		}
 
 		$metaData = FPM::transfer()->getMetaData($id);
+		$ext = $metaData['extension'] ? '.' . $metaData['extension'] : null;
 		$src = FPM::m()->host . FPM::m()->cachedImagesBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
-			) . '/' . $model . '_' . $size . '/' . $id . '-' . $metaData['real_name'] . '.' . $metaData['extension'];
+			) . '/' . $model . '_' . $size . '/' . $id . '-' . $metaData['real_name'] . $ext;
 
 		return $src;
 	}
@@ -135,10 +136,10 @@ class FPM
 		}
 
 		$metaData = FPM::transfer()->getMetaData($id);
-
+		$ext = $metaData['extension'] ? '.' . $metaData['extension'] : null;
 		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
-			) . '/' . $id . '-' . $metaData['real_name'] . '.' . $metaData['extension'];
+			) . '/' . $id . '-' . $metaData['real_name'] . $ext;
 
 		return $src;
 	}
@@ -151,9 +152,10 @@ class FPM
 	 */
 	public static function getOriginalFilePath($id, $fileName, $ext)
 	{
+		$ext = $ext ? '.' . $ext : null;
 		return FPM::getBasePath() . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor(
 			$id / FPM::m()->filesPerDir
-		) . DIRECTORY_SEPARATOR . $id . '-' . $fileName . '.' . $ext;
+		) . DIRECTORY_SEPARATOR . $id . '-' . $fileName . $ext;
 	}
 
 	/**
