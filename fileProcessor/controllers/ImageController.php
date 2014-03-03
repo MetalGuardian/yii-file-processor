@@ -50,7 +50,7 @@ class ImageController extends CController
 			FPM::createCacheDir($id, $model, $type);
 
 			/** @var $ih \fileProcessor\extensions\imageHandler\drivers\MDriverAbstract|\fileProcessor\extensions\imageHandler\MImageHandler */
-			$ih = Yii::createComponent(FPM::m()->imageHandler);
+			$ih = Yii::createComponent(FPM::m()->getImageHandler());
 			$ih->init();
 			$ih->load($file);
 			if (isset($config['do'])) {

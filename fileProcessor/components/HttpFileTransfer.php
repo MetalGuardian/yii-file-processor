@@ -6,7 +6,7 @@
 namespace fileProcessor\components;
 
 use CComponent;
-use fileProcessor\components\IFileTransfer;
+use ErrorException;
 use fileProcessor\helpers\FPM;
 
 /**
@@ -72,10 +72,13 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
 		if (!is_dir($dirName)) {
-			// @TODO: fix this line. @ - is not good
-			if (!@mkdir($dirName, 0777, true)) {
+			if (is_writable($this->getBaseDestinationDir())) {
+				mkdir($dirName, 0777, true);
+			} else {
 				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
+		} elseif (!is_writable($dirName)) {
+			throw new \CException('Can not change permissions: ' . dirname($dirName));
 		}
 		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
 		$ext = \mb_strtolower(pathinfo($uploadedFile->getName(), PATHINFO_EXTENSION), 'UTF-8');
@@ -102,8 +105,9 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
 		if (!is_dir($dirName)) {
-			// @TODO: fix this line. @ - is not good
-			if (!@mkdir($dirName, 0777, true)) {
+			if (is_writable($this->getBaseDestinationDir())) {
+				mkdir($dirName, 0777, true);
+			} else {
 				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}

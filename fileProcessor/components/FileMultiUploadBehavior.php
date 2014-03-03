@@ -129,7 +129,7 @@ class FileMultiUploadBehavior extends CActiveRecordBehavior
 				'fileUploader',
 				array(
 					'types' => $this->fileTypes,
-					'allowEmpty' => $this->allowEmpty || $owner->{$this->attributeName},
+					'allowEmpty' => $this->allowEmpty,
 					'safe' => false,
 					'mimeTypes' => $this->mimeTypes,
 					'minSize' => $this->minSize,

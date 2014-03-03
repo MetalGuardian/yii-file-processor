@@ -6,6 +6,7 @@
 namespace fileProcessor\helpers;
 
 use CHtml;
+use Exception;
 use Yii;
 
 /**
@@ -139,13 +140,14 @@ class FPM
 		$ext = $metaData['extension'] ? '.' . $metaData['extension'] : null;
 		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
-			) . '/' . $id . '-' . $metaData['real_name'] . $ext;
+			) . '/' . rawurlencode($id . '-' . $metaData['real_name'] . $ext);
 
 		return $src;
 	}
 
 	/**
 	 * @param $id
+	 * @param $fileName
 	 * @param $ext
 	 *
 	 * @return string
@@ -155,7 +157,7 @@ class FPM
 		$ext = $ext ? '.' . $ext : null;
 		return FPM::getBasePath() . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor(
 			$id / FPM::m()->filesPerDir
-		) . DIRECTORY_SEPARATOR . $id . '-' . $fileName . $ext;
+		) . DIRECTORY_SEPARATOR . rawurlencode($id . '-' . $fileName . $ext);
 	}
 
 	/**
@@ -181,7 +183,7 @@ class FPM
 	 * @param $id
 	 * @param $model
 	 * @param $size
-	 * @param $fileName
+	 * @param $file
 	 *
 	 * @return bool|string
 	 */
@@ -231,9 +233,18 @@ class FPM
 	{
 		$dirName = FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir);
 
+		if (!is_dir(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir)) {
+			if (is_writable(FPM::getBasePath())) {
+				mkdir(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir, 0777, true);
+			} else {
+				throw new \CException('Can not create directory: ' . dirname(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir));
+			}
+		}
+
 		if (!is_dir($dirName)) {
-			// @TODO: fix this line. @ - is not good
-			if (!@mkdir($dirName, 0777, true)) {
+			if (is_writable(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir)) {
+				mkdir($dirName, 0777, true);
+			} else {
 				throw new \CException('Can not create directory: ' . dirname($dirName));
 			}
 		}
@@ -241,8 +252,9 @@ class FPM
 		$subPath = $dirName . DIRECTORY_SEPARATOR . $model . '_' . $type;
 
 		if (!is_dir($subPath)) {
-			// @TODO: fix this line. @ - is not good
-			if (!@mkdir($subPath, 0777, true)) {
+			if (is_writable($dirName)) {
+				mkdir($subPath, 0777, true);
+			} else {
 				throw new \CException('Can not create directory: ' . dirname($subPath));
 			}
 		}
