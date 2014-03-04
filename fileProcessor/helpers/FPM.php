@@ -231,32 +231,37 @@ class FPM
 	 */
 	public static function createCacheDir($id, $model, $type)
 	{
-		$dirName = FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor($id / FPM::m()->filesPerDir);
-
-		if (!is_dir(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir)) {
-			if (is_writable(FPM::getBasePath())) {
-				mkdir(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir, 0777, true);
-			} else {
-				throw new \CException('Can not create directory: ' . dirname(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir));
-			}
-		}
-
+		$dirName = FPM::getBasePath() . FPM::m()->cachedImagesBaseDir . DIRECTORY_SEPARATOR . floor(
+				$id / FPM::m()->filesPerDir
+			) . DIRECTORY_SEPARATOR . $model . '_' . $type;
 		if (!is_dir($dirName)) {
-			if (is_writable(FPM::getBasePath() . FPM::m()->cachedImagesBaseDir)) {
-				mkdir($dirName, 0777, true);
-			} else {
-				throw new \CException('Can not create directory: ' . dirname($dirName));
-			}
+			FPM::mkdir($dirName, 0777, true);
+		}
+	}
+
+	/**
+	 * Shared environment safe version of mkdir. Supports recursive creation.
+	 * For avoidance of umask side-effects chmod is used.
+	 *
+	 * @static
+	 *
+	 * @param string $dst path to be created
+	 * @param int $mode
+	 * @param boolean $recursive
+	 *
+	 * @return boolean result of mkdir
+	 * @see mkdir
+	 */
+	public static function mkdir($dst, $mode = 0777, $recursive = false)
+	{
+		$prevDir = \dirname($dst);
+		if ($recursive && !is_dir($dst) && !is_dir($prevDir)) {
+			self::mkdir(\dirname($dst), $mode, true);
 		}
 
-		$subPath = $dirName . DIRECTORY_SEPARATOR . $model . '_' . $type;
+		$res = \mkdir($dst, $mode);
+		\chmod($dst, $mode);
 
-		if (!is_dir($subPath)) {
-			if (is_writable($dirName)) {
-				mkdir($subPath, 0777, true);
-			} else {
-				throw new \CException('Can not create directory: ' . dirname($subPath));
-			}
-		}
+		return $res;
 	}
 }

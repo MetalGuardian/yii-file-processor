@@ -72,13 +72,7 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
 		if (!is_dir($dirName)) {
-			if (is_writable($this->getBaseDestinationDir())) {
-				mkdir($dirName, 0777, true);
-			} else {
-				throw new \CException('Can not create directory: ' . dirname($dirName));
-			}
-		} elseif (!is_writable($dirName)) {
-			throw new \CException('Can not change permissions: ' . dirname($dirName));
+			FPM::mkdir($dirName, 0777, true);
 		}
 		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
 		$ext = \mb_strtolower(pathinfo($uploadedFile->getName(), PATHINFO_EXTENSION), 'UTF-8');
@@ -105,11 +99,7 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
 		if (!is_dir($dirName)) {
-			if (is_writable($this->getBaseDestinationDir())) {
-				mkdir($dirName, 0777, true);
-			} else {
-				throw new \CException('Can not create directory: ' . dirname($dirName));
-			}
+			FPM::mkdir($dirName, 0777, true);
 		}
 
 		$ext = $ext ? '.' . $ext : null;
