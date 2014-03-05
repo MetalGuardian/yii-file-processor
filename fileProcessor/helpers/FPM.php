@@ -5,8 +5,11 @@
 
 namespace fileProcessor\helpers;
 
+use CException;
 use CHtml;
-use Exception;
+use fileProcessor\components\FileTransfer;
+use fileProcessor\components\ImageCache;
+use fileProcessor\FileProcessorModule;
 use Yii;
 
 /**
@@ -16,31 +19,31 @@ use Yii;
 class FPM
 {
 	/**
-	 * @var \fileProcessor\components\ImageCache
+	 * @var ImageCache
 	 */
 	protected static $cache = null;
 
 	/**
-	 * @var \fileProcessor\components\FileTransfer
+	 * @var FileTransfer
 	 */
 	protected static $transfer = null;
 
 	/**
 	 * @param string $module
 	 *
-	 * @throws \CException
-	 * @return \fileProcessor\FileProcessorModule
+	 * @throws CException
+	 * @return FileProcessorModule
 	 */
 	public static function m($module = 'file-processor')
 	{
 		if (!Yii::app()->hasModule($module)) {
-			throw new \CException('Wrong component name! You need call this method with right file-processor component name.');
+			throw new CException('Wrong component name! You need call this method with right file-processor component name.');
 		}
 		return Yii::app()->getModule($module);
 	}
 
 	/**
-	 * @return \fileProcessor\components\ImageCache
+	 * @return ImageCache
 	 */
 	public static function cache()
 	{
@@ -52,7 +55,7 @@ class FPM
 	}
 
 	/**
-	 * @return \fileProcessor\components\FileTransfer
+	 * @return FileTransfer
 	 */
 	public static function transfer()
 	{
@@ -227,7 +230,7 @@ class FPM
 	 * @param $model
 	 * @param $type
 	 *
-	 * @throws \CException
+	 * @throws CException
 	 */
 	public static function createCacheDir($id, $model, $type)
 	{
@@ -249,6 +252,7 @@ class FPM
 	 * @param int $mode
 	 * @param boolean $recursive
 	 *
+	 * @throws CException
 	 * @return boolean result of mkdir
 	 * @see mkdir
 	 */
@@ -258,7 +262,11 @@ class FPM
 		if ($recursive && !is_dir($dst) && !is_dir($prevDir)) {
 			self::mkdir(\dirname($dst), $mode, true);
 		}
-
+		if (!is_writable($prevDir)) {
+			$message = 'Can not create directory: {dir} <br>Directory {prev} is not writable.';
+			$message = strtr($message, array('{dir}' => $dst, '{prev}' => $prevDir, ));
+			throw new CException($message);
+		}
 		$res = \mkdir($dst, $mode);
 		\chmod($dst, $mode);
 
