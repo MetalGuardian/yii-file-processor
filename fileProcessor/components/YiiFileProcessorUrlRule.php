@@ -5,14 +5,20 @@
 
 namespace fileProcessor\components;
 
+use CBaseUrlRule;
+use CHttpRequest;
+use CUrlManager;
 use fileProcessor\helpers\FPM;
 
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-class YiiFileProcessorUrlRule extends \CBaseUrlRule
+class YiiFileProcessorUrlRule extends CBaseUrlRule
 {
+	/**
+	 * @var array
+	 */
 	protected $urlParams = array(
 		'\/(\d+)\/(\w+)_(\w+)\/(\d+)-(.*)\.(png|gif|jpg|jpeg)' => array(
 			1 => 'sub',
@@ -23,6 +29,7 @@ class YiiFileProcessorUrlRule extends \CBaseUrlRule
 			6 => 'ext',
 		),
 	);
+
 	/**
 	 * Database connection component id
 	 *
@@ -47,10 +54,10 @@ class YiiFileProcessorUrlRule extends \CBaseUrlRule
 	/**
 	 * Creates a URL based on this rule.
 	 *
-	 * @param \CUrlManager $manager   the manager
-	 * @param string       $route     the route
-	 * @param array        $params    list of parameters (name=>value) associated with the route
-	 * @param string       $ampersand the token separating name-value pairs in the URL.
+	 * @param CUrlManager $manager the manager
+	 * @param string $route the route
+	 * @param array $params list of parameters (name=>value) associated with the route
+	 * @param string $ampersand the token separating name-value pairs in the URL.
 	 *
 	 * @return mixed the constructed URL. False if this rule does not apply.
 	 */
@@ -62,10 +69,10 @@ class YiiFileProcessorUrlRule extends \CBaseUrlRule
 	/**
 	 * Parses a URL based on this rule.
 	 *
-	 * @param \CUrlManager  $manager     the URL manager
-	 * @param \CHttpRequest $request     the request object
-	 * @param string        $pathInfo    path info part of the URL (URL suffix is already removed based on {@link CUrlManager::urlSuffix})
-	 * @param string        $rawPathInfo path info that contains the potential URL suffix
+	 * @param CUrlManager $manager the URL manager
+	 * @param CHttpRequest $request the request object
+	 * @param string $pathInfo path info part of the URL (URL suffix is already removed based on {@link CUrlManager::urlSuffix})
+	 * @param string $rawPathInfo path info that contains the potential URL suffix
 	 *
 	 * @return mixed the route that consists of the controller ID and action ID. False if this rule does not apply.
 	 */

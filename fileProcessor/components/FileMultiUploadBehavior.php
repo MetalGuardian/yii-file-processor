@@ -5,10 +5,10 @@
 
 namespace fileProcessor\components;
 
-use CActiveRecord;
 use CActiveRecordBehavior;
 use CEvent;
 use CModelEvent;
+use core\components\ActiveRecord;
 use CUploadedFile;
 use CValidator;
 use fileProcessor\helpers\FPM;
@@ -17,14 +17,10 @@ use fileProcessor\helpers\FPM;
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-class FileUploadBehavior extends CActiveRecordBehavior
+class FileMultiUploadBehavior extends CActiveRecordBehavior
 {
-	/**
-	 * File attribute name
-	 *
-	 * @var string
-	 */
-	public $attributeName = 'file_id';
+
+	public $fileUploader;
 
 	/**
 	 * Can attribute be empty
@@ -38,7 +34,7 @@ class FileUploadBehavior extends CActiveRecordBehavior
 	 *
 	 * @var array
 	 */
-	public $scenarios = array('insert', 'update', );
+	public $scenarios = array('insert', 'update',);
 
 	/**
 	 * Allowed file types
@@ -100,15 +96,29 @@ class FileUploadBehavior extends CActiveRecordBehavior
 	public $wrongMimeType;
 
 	/**
+	 * @var integer the maximum file count the given attribute can hold.
+	 * It defaults to 1, meaning single file upload. By defining a higher number,
+	 * multiple uploads become possible.
+	 */
+	public $maxFiles = 1;
+
+	/**
+	 * @var string the error message used if the count of multiple uploads exceeds
+	 * limit.
+	 */
+	public $tooMany;
+
+	/**
 	 * Responds to {@link CModel::onBeforeValidate} event.
 	 * Override this method and make it public if you want to handle the corresponding event
 	 * of the {@link owner}.
 	 * You may set {@link CModelEvent::isValid} to be false to quit the validation process.
+	 *
 	 * @param CModelEvent $event event parameter
 	 */
 	public function beforeValidate($event)
 	{
-		/** @var CActiveRecord $owner */
+		/** @var ActiveRecord $owner */
 		$owner = $this->getOwner();
 		if (in_array($owner->getScenario(), $this->scenarios, true)) {
 			// добавляем валидатор файла, не забываем в параметрах валидатора указать
@@ -116,10 +126,10 @@ class FileUploadBehavior extends CActiveRecordBehavior
 			$fileValidator = CValidator::createValidator(
 				'file',
 				$owner,
-				$this->attributeName,
+				'fileUploader',
 				array(
 					'types' => $this->fileTypes,
-					'allowEmpty' => $this->allowEmpty || $owner->{$this->attributeName},
+					'allowEmpty' => $this->allowEmpty,
 					'safe' => false,
 					'mimeTypes' => $this->mimeTypes,
 					'minSize' => $this->minSize,
@@ -128,6 +138,8 @@ class FileUploadBehavior extends CActiveRecordBehavior
 					'tooSmall' => $this->tooSmall,
 					'wrongType' => $this->wrongType,
 					'wrongMimeType' => $this->wrongMimeType,
+					'maxFiles' => $this->maxFiles,
+					'tooMany' => $this->tooMany,
 				)
 			);
 			$owner->validatorList->add($fileValidator);
@@ -142,48 +154,81 @@ class FileUploadBehavior extends CActiveRecordBehavior
 	 */
 	public function beforeSave($event)
 	{
-		/** @var $owner CActiveRecord */
+		/** @var $owner ActiveRecord */
 		$owner = $this->getOwner();
-		if (in_array($owner->getScenario(), $this->scenarios, true) && $file = CUploadedFile::getInstance(
+		if (!$owner->isNewRecord && in_array(
+				$owner->getScenario(),
+				$this->scenarios,
+				true
+			) && ($files = CUploadedFile::getInstances(
 				$owner,
-				$this->attributeName
-			)
+				'fileUploader'
+			)) && !empty($files)
 		) {
-			// delete old file
-			$this->deleteFile();
+			/** @var CUploadedFile[] $files */
+			foreach ($files as $file) {
+				$fileId = FPM::transfer()->saveUploadedFile($file);
 
-			$fileId = FPM::transfer()->saveUploadedFile($file);
+				if ($this->hasEventHandler('onSaveImage')) {
+					$event = new CEvent($this);
+					$event->params = array(
+						'fileId' => $fileId,
+					);
+					$this->onSaveImage($event);
+				}
 
-			if ($this->hasEventHandler('onSaveImage')) {
-				$event = new CEvent($this);
-				$event->params = array(
-					'fileId' => $fileId,
+				FPM::m()->getDb()->createCommand()->insert(
+					FPM::m()->relatedTableName,
+					array(
+						'file_id' => $fileId,
+						'model_id' => $owner->getPrimaryKey(),
+						'model_class' => $owner->getClassName(),
+					)
 				);
-				$this->onSaveImage($event);
 			}
-
-			$owner->{$this->attributeName} = $fileId;
 		}
 	}
 
 	/**
-	 * Responds to {@link CActiveRecord::onBeforeDelete} event.
+	 * Responds to {@link ActiveRecord::onBeforeDelete} event.
 	 * Override this method and make it public if you want to handle the corresponding event
 	 * of the {@link CBehavior::owner owner}.
 	 * You may set {@link CModelEvent::isValid} to be false to quit the deletion process.
+	 *
 	 * @param CEvent $event event parameter
 	 */
 	public function beforeDelete($event)
 	{
-		$this->deleteFile();
+		$this->deleteFiles();
 	}
 
-	private function deleteFile()
+	private function deleteFiles()
 	{
-		/** @var $owner CActiveRecord */
+		/** @var $owner ActiveRecord */
 		$owner = $this->getOwner();
 
-		FPM::deleteFiles($owner->{$this->attributeName});
+		$files = FPM::m()->getDb()->createCommand()->select(array('file_id'))->from(FPM::m()->relatedTableName)->where(
+			'model_id = :mid AND model_class = :mclass'
+		)->queryColumn(array(':mid' => $owner->getPrimaryKey(), ':mclass' => $owner->getClassName(),));
+		foreach ($files as $fileId) {
+			FPM::deleteFiles($fileId);
+		}
+	}
+
+	/**
+	 * Return array of file ids
+	 *
+	 * @return array
+	 */
+	public function getRelatedFiles()
+	{
+		/** @var ActiveRecord $owner */
+		$owner = $this->getOwner();
+		$files = FPM::m()->getDb()->createCommand()->select(array('file_id'))->from(FPM::m()->relatedTableName)->where(
+			'model_id = :mid AND model_class = :mclass'
+		)->queryColumn(array(':mid' => $owner->getPrimaryKey(), ':mclass' => $owner->getClassName(),));
+
+		return $files;
 	}
 
 	/**

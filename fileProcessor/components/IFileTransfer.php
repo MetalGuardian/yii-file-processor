@@ -43,17 +43,21 @@ interface IFileTransfer
 	 */
 	public function saveUploadedFile(\CUploadedFile $uploadedFile);
 
-	public function saveFile($file, $ext);
+	/**
+	 * @param $file
+	 *
+	 * @return mixed
+	 */
+	public function saveFile($file);
 
 	/**
 	 * Delete file
 	 *
-	 * @param integer     $id        file id
-	 * @param bool|string $extension file extension.
+	 * @param integer $id file id
 	 *
 	 * @return boolean
 	 */
-	public function deleteFile($id, $extension = false);
+	public function deleteFile($id);
 
 	/**
 	 * Save file meta data to persistent storage and return id.
@@ -64,7 +68,12 @@ interface IFileTransfer
 	 */
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile);
 
-	public function saveMetaDataForFile($realName, $ext);
+	/**
+	 * @param $file
+	 *
+	 * @return mixed
+	 */
+	public function saveMetaDataForFile($file);
 
 	/**
 	 * Get file meta information.

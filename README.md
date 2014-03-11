@@ -6,14 +6,14 @@ in config/main.php:
 
 example for standard yii structure when this module located in extension dir:
 
-		Yii::setPathOfAlias('fileProcessor', dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . 'yii-file-processor');
+		Yii::setPathOfAlias('fileProcessor', dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'extensions' . DIRECTORY_SEPARATOR . 'yii-file-processor' . DIRECTORY_SEPARATOR . 'fileProcessor');
 
 application config:
 
 		...
-		'controllerMap'=>array(
+		'controllerMap' => array(
 			'image' => array(
-				'class'=>'\fileProcessor\controllers\ImageController',
+				'class' => '\fileProcessor\controllers\ImageController',
 			),
 		),
 		...
@@ -23,24 +23,23 @@ if you merge main config with console config, you need unset controllerMap key
 
 modules section:
 
-		'file-processor'=>array(
-			'class' => '\fileProcessor\FileProcessorModule',
-			'originalBaseDir' => 'uploads/original',
-			'cachedImagesBaseDir' => 'uploads/thumb',
-			// set path without first and last slashes
+		'file-processor' => array(
+			'baseDir' => realpath(
+					__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'www'
+				) . DIRECTORY_SEPARATOR,
 			'imageSections' => array(
-				'admin'=>array(
-					'default'=>array(
+				'admin' => array(
+					'default' => array(
 						'width' => 100,
 						'height' => 100,
 						'quality' => 100,
-						'do' => 'thumb', // resize|thumb|adaptiveThumb
+						'do' => 'resize', // resize|adaptiveResize
 					),
 				),
 			),
 			'imageHandler' => array(
-				'driver' => \fileProcessor\extensions\imageHandler\MImageHandler::IMAGE_MAGIC_DRIVER,
-				// \fileProcessor\extensions\imageHandler\MImageHandler::GD_DRIVER
+				'driver' => '\fileProcessor\extensions\imageHandler\drivers\MDriverGD',
+				// '\fileProcessor\extensions\imageHandler\drivers\MDriverImageMagic'
 			),
 		),
 
@@ -58,7 +57,6 @@ component section:
 					'controllerId' => 'image',
 				),
 				// controllerId - name of the controller, which you set in controller map
-				'uploads/thumb/<sub:\d+>/<model:\w+>_<type:\w+>/<id:\d+>.<ext:(png|gif|jpg|jpeg)>' => 'image/resize',
 				...
 			),
 		),
@@ -73,4 +71,4 @@ add behavior to the model:
 
 Run command:
 
-		php protected/yiic.php migrate --migrationPath=application.extensions.yii-file-processor.migrations
+		php protected/yiic.php migrate --migrationPath=application.extensions.yii-file-processor.fileProcessor.migrations

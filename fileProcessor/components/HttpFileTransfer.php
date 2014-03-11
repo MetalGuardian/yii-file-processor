@@ -5,22 +5,31 @@
 
 namespace fileProcessor\components;
 
+use CComponent;
+use ErrorException;
 use fileProcessor\helpers\FPM;
 
 /**
  * Author: Ivan Pushkin
  * Email: metal@vintage.com.ua
  */
-abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\components\IFileTransfer
+abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 {
+	/**
+	 * @var null|string
+	 */
 	private $_baseDestinationDir;
+
+	/**
+	 * @var int|null
+	 */
 	private $_maxFilesPerDir;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param string  $baseDestinationDir base destination dir for transfer.
-	 * @param integer $maxFilesPerDir     maximum files count per dir.
+	 * @param string $baseDestinationDir base destination dir for transfer.
+	 * @param integer $maxFilesPerDir maximum files count per dir.
 	 */
 	public function __construct($baseDestinationDir = null, $maxFilesPerDir = null)
 	{
@@ -63,54 +72,63 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
 		if (!is_dir($dirName)) {
-			// @TODO: fix this line. @ - is not good
-			if (!@mkdir($dirName, 0777, true)) {
-				throw new \CException(FPM::t('Can not create directory: ' . dirname($dirName)));
-			}
+			FPM::mkdir($dirName, 0777, true);
 		}
-
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($uploadedFile->getExtensionName());
+		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
+		$ext = \mb_strtolower(pathinfo($uploadedFile->getName(), PATHINFO_EXTENSION), 'UTF-8');
+		$ext = $ext ? '.' . $ext : null;
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . $ext;
 
 		$uploadedFile->saveAs($fileName);
 
 		return $id;
 	}
 
-	public function saveFile($file, $ext)
+	/**
+	 * @param $file
+	 *
+	 * @return mixed
+	 * @throws \CException
+	 */
+	public function saveFile($file)
 	{
-		$id = $this->saveMetaDataForFile('', $ext);
+		$id = $this->saveMetaDataForFile($file);
+		$realName = pathinfo($file, PATHINFO_FILENAME);
+		$ext = \mb_strtolower(pathinfo($file, PATHINFO_EXTENSION), 'UTF-8');
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if(!is_dir($dirName))
-		{
-			// @TODO: fix this line. @ - is not good
-			if(!@mkdir($dirName, 0777, true))
-			{
-				throw new \CException(\fileProcessor\helpers\FPM::t('Can not create directory: ' . dirname($dirName)));
-			}
+		if (!is_dir($dirName)) {
+			FPM::mkdir($dirName, 0777, true);
 		}
 
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . \mb_strtolower($ext);
+		$ext = $ext ? '.' . $ext : null;
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . $ext;
 
 		$this->putImage($ext, $file, $fileName);
 
 		return $id;
 	}
 
-	public function putImage($ext,$img,$file = null){
-		switch($ext){
+	/**
+	 * @param $ext
+	 * @param $img
+	 * @param null $file
+	 */
+	public function putImage($ext, $img, $file = null)
+	{
+		switch ($ext) {
 			case "png":
-				imagepng($img,($file != null ? $file : ''));
+				imagepng($img, $file, 100);
 				break;
 			case "jpeg":
-				imagejpeg($img,($file ? $file : ''),90);
+				imagejpeg($img, $file, 100);
 				break;
 			case "jpg":
-				imagejpeg($img,($file ? $file : ''),90);
+				imagejpeg($img, $file, 100);
 				break;
 			case "gif":
-				imagegif($img,($file ? $file : ''));
+				imagegif($img, $file);
 				break;
 		}
 	}
@@ -118,12 +136,11 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 	/**
 	 * Delete file
 	 *
-	 * @param integer     $id        file id
-	 * @param bool|string $extension file extension
+	 * @param integer $id file id
 	 *
 	 * @return boolean
 	 */
-	public function deleteFile($id, $extension = false)
+	public function deleteFile($id)
 	{
 		if (!(int)$id) {
 			return false;
@@ -131,11 +148,8 @@ abstract class HttpFileTransfer extends \CComponent implements \fileProcessor\co
 
 		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
 
-		if (!$extension) {
-			$metaData = FPM::transfer()->getMetaData($id);
-			$extension = $metaData['extension'];
-		}
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '.' . $extension;
+		$meta = FPM::transfer()->getMetaData($id);
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $meta['real_name'] . '.' . $meta['extension'];
 
 		if (is_file($fileName)) {
 			$result = unlink($fileName) && $this->deleteMetaData($id) ? true : false;

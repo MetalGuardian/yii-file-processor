@@ -5,7 +5,9 @@
 
 namespace fileProcessor\components;
 
+use CDbCommand;
 use fileProcessor\helpers\FPM;
+use Yii;
 
 /**
  * Author: Ivan Pushkin
@@ -13,6 +15,10 @@ use fileProcessor\helpers\FPM;
  */
 class FileTransfer extends HttpFileTransfer
 {
+	/**
+	 * @param null $baseDestinationDir upload directory
+	 * @param null $maxFilesPerDir files per directory
+	 */
 	public function __construct($baseDestinationDir = null, $maxFilesPerDir = null)
 	{
 		if ($baseDestinationDir === null) {
@@ -36,22 +42,31 @@ class FileTransfer extends HttpFileTransfer
 	public function saveMetaDataForUploadedFile(\CUploadedFile $uploadedFile)
 	{
 		$ext = \mb_strtolower($uploadedFile->getExtensionName(), 'UTF-8');
-		$realName = \mb_strtolower($uploadedFile->getName(), 'UTF-8');
+		$realName = pathinfo($uploadedFile->getName(), PATHINFO_FILENAME);
 
-		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
-		$command = \Yii::app()->db->createCommand($sql);
-		$command->execute(array(':ext' => $ext, 'time' => time(), ':name' => $realName));
+		FPM::m()->getDb()->createCommand()->insert(
+			FPM::m()->tableName,
+			array('extension' => $ext, 'real_name' => $realName)
+		);
 
-		return \Yii::app()->db->getLastInsertID();
+		return FPM::m()->getDb()->getLastInsertID();
 	}
 
-	public function saveMetaDataForFile($realName, $ext)
+	/**
+	 * @param $file
+	 *
+	 * @return mixed
+	 */
+	public function saveMetaDataForFile($file)
 	{
-		$sql = "INSERT INTO {{file}} (extension, created, real_name) VALUES (:ext, :time, :name)";
-		$command = \Yii::app()->db->createCommand($sql);
-		$command->execute(array(':ext'=>$ext, 'time'=>time(), ':name'=>$realName));
+		$ext = pathinfo($file, PATHINFO_EXTENSION);
+		$realName = pathinfo($file, PATHINFO_FILENAME);
+		FPM::m()->getDb()->createCommand()->insert(
+			FPM::m()->tableName,
+			array('extension' => $ext, 'real_name' => $realName)
+		);
 
-		return \Yii::app()->db->getLastInsertID();
+		return FPM::m()->getDb()->getLastInsertID();
 	}
 
 	/**
@@ -63,24 +78,25 @@ class FileTransfer extends HttpFileTransfer
 	 *
 	 * @param integer $id file id.
 	 *
-	 * @param string  $fields
+	 * @param array|string $fields
 	 *
 	 * @return array array with file meta information.
 	 */
-	public function getMetaData($id, $fields = array('extension', 'real_name', ))
+	public function getMetaData($id, $fields = array('extension', 'real_name',))
 	{
 		$row = false;
 		$cache = false;
-		if (!empty(FPM::m()->cache) && \Yii::app()->hasComponent(FPM::m()->cache)) {
+		if (!empty(FPM::m()->cache) && Yii::app()->hasComponent(FPM::m()->cache)) {
 			/** @var $cache \CDummyCache */
-			$cache = \Yii::app()->getComponent(FPM::m()->cache);
+			$cache = Yii::app()->getComponent(FPM::m()->cache);
 			$row = $cache->get(FPM::m()->CACHE_PREFIX . '#' . $id);
 		}
 
 		if (false === $row || !is_array($row)) {
-			$command = \Yii::app()->db->createCommand()
+			/** @var CDbCommand $command */
+			$command = FPM::m()->getDb()->createCommand()
 				->select($fields)
-				->from('{{file}}')
+				->from(FPM::m()->tableName)
 				->where('id = :iid', array(':iid' => $id));
 			$row = $command->queryRow();
 			if ($cache) {
@@ -100,14 +116,16 @@ class FileTransfer extends HttpFileTransfer
 	 */
 	public function deleteMetaData($id)
 	{
-		if (!empty(FPM::m()->cache) && \Yii::app()->hasComponent(FPM::m()->cache)) {
+		if (!empty(FPM::m()->cache) && Yii::app()->hasComponent(FPM::m()->cache)) {
 			/** @var $cache \CDummyCache */
-			$cache = \Yii::app()->getComponent(FPM::m()->cache);
+			$cache = Yii::app()->getComponent(FPM::m()->cache);
 			$cache->delete(FPM::m()->CACHE_PREFIX . '#' . $id);
 		}
-		$sql = 'DELETE FROM {{file}} WHERE id = :iid';
-		$command = \Yii::app()->db->createCommand($sql);
 
-		return $command->execute(array(':iid' => $id));
+		return (boolean)FPM::m()->getDb()->createCommand()->delete(
+			FPM::m()->tableName,
+			'id = :id',
+			array(':id' => $id)
+		);
 	}
 }

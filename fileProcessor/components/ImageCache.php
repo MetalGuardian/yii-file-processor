@@ -12,8 +12,9 @@ class ImageCache implements IImageCache
 	/**
 	 * Delete cached images.
 	 *
-	 * @param integer     $id image id
-	 * @param bool|string $ext
+	 * @param integer $id image id
+	 *
+	 * @internal param bool|string $ext
 	 *
 	 * @return void
 	 */
