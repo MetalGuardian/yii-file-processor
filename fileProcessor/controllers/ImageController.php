@@ -63,6 +63,7 @@ class ImageController extends CController
 						$ih->resize($config['width'], $config['height']);
 						break;
 					default:
+						throw new CHttpException(400, 'Incorrect action');
 						break;
 				}
 			} else {
