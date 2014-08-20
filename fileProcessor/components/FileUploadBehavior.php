@@ -100,6 +100,13 @@ class FileUploadBehavior extends CActiveRecordBehavior
 	public $wrongMimeType;
 
 	/**
+	 * @var string the user-defined error message. Different validators may define various
+	 * placeholders in the message that are to be replaced with actual values. All validators
+	 * recognize "{attribute}" placeholder, which will be replaced with the label of the attribute.
+	 */
+	public $message;
+
+	/**
 	 * Responds to {@link CModel::onBeforeValidate} event.
 	 * Override this method and make it public if you want to handle the corresponding event
 	 * of the {@link owner}.
@@ -128,6 +135,7 @@ class FileUploadBehavior extends CActiveRecordBehavior
 					'tooSmall' => $this->tooSmall,
 					'wrongType' => $this->wrongType,
 					'wrongMimeType' => $this->wrongMimeType,
+					'message' => $this->message,
 				)
 			);
 			$owner->validatorList->add($fileValidator);
