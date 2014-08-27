@@ -65,6 +65,9 @@ class ImageController extends CController
 					case 'copy':
 						// do nothing, create copy of the file
 						break;
+					case 'resizeCanvas':
+						$ih->resizeCanvas($config['width'], $config['height']);
+						break;
 					default:
 						throw new CHttpException(400, 'Incorrect action');
 						break;
