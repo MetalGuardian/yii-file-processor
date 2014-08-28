@@ -102,10 +102,36 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 			FPM::mkdir($dirName, 0777, true);
 		}
 
-		$ext = $ext ? '.' . $ext : null;
-		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . $ext;
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . ($ext ? '.' . $ext : null);
 
 		$this->putImage($ext, $file, $fileName);
+
+		return $id;
+	}
+
+	/**
+	 * @param string $file path to the file
+	 *
+	 * @throws \Exception
+	 * @return mixed
+	 */
+	public function saveFileByCopy($file)
+	{
+		$id = $this->saveMetaDataForFile($file);
+		$realName = pathinfo($file, PATHINFO_FILENAME);
+		$ext = \mb_strtolower(pathinfo($file, PATHINFO_EXTENSION), 'UTF-8');
+
+		$dirName = $this->getBaseDestinationDir() . DIRECTORY_SEPARATOR . floor($id / $this->getMaxFilesPerDir());
+
+		if (!is_dir($dirName)) {
+			FPM::mkdir($dirName, 0777, true);
+		}
+
+		$fileName = $dirName . DIRECTORY_SEPARATOR . $id . '-' . $realName . ($ext ? '.' . $ext : null);
+
+		if (!copy($file, $fileName)) {
+			throw new \Exception('Can not copy file from ' . $file . ' to ' . $fileName);
+		}
 
 		return $id;
 	}
@@ -114,6 +140,8 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 	 * @param $ext
 	 * @param $img
 	 * @param null $file
+	 *
+	 * @throws \Exception
 	 */
 	public function putImage($ext, $img, $file = null)
 	{
@@ -129,6 +157,9 @@ abstract class HttpFileTransfer extends CComponent implements IFileTransfer
 				break;
 			case "gif":
 				imagegif($img, $file);
+				break;
+			default:
+				throw new \Exception('Unknown extension: ' . $ext);
 				break;
 		}
 	}
