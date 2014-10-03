@@ -160,7 +160,7 @@ class FPM
 		$ext = $ext ? '.' . $ext : null;
 		return FPM::getBasePath() . FPM::m()->originalBaseDir . DIRECTORY_SEPARATOR . floor(
 			$id / FPM::m()->filesPerDir
-		) . DIRECTORY_SEPARATOR . rawurlencode($id . '-' . $fileName . $ext);
+		) . DIRECTORY_SEPARATOR . urldecode($id . '-' . $fileName . $ext);
 	}
 
 	/**

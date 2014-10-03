@@ -20,7 +20,7 @@ class YiiFileProcessorUrlRule extends CBaseUrlRule
 	 * @var array
 	 */
 	protected $urlParams = array(
-		'\/(\d+)\/(\w+)_(\w+)\/(\d+)-(.*)\.(png|gif|jpg|jpeg)' => array(
+		'\/(\d+)\/(\w+)_(\w+)\/(\d+)-(.*)\.(png|gif|jpg|jpeg|PNG|GIF|JPG|JPEG)' => array(
 			1 => 'sub',
 			2 => 'model',
 			3 => 'type',
