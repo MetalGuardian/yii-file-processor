@@ -56,7 +56,7 @@ class FileProcessorModule extends \CWebModule
 	public $cacheExpire = 2592000; // 30 days
 
 	/**
-	 * @var string host for the images.
+	 * @var string|array host for the images.
 	 */
 	public $host = '/';
 
@@ -154,5 +154,24 @@ class FileProcessorModule extends \CWebModule
 			return Yii::app()->getComponent($this->db);
 		}
 		throw new CException('Db component not created');
+	}
+
+	/**
+	 * Get host for the image with $id
+	 *
+	 * @param null $id image id
+	 *
+	 * @return string
+	 */
+	public function getHost($id = null)
+	{
+		$host = '/';
+		if (is_array($this->host)) {
+			$count = count($this->host);
+			$host = $this->host[$id % $count];
+		} else {
+			$host = $this->host;
+		}
+		return $host;
 	}
 }

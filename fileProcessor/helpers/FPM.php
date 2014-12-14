@@ -122,7 +122,7 @@ class FPM
 		$metaData = FPM::transfer()->getMetaData($id);
 		$ext = $metaData['extension'] ? '.' . $metaData['extension'] : null;
 		$ext = \mb_strtolower($ext, 'UTF-8');
-		$src = FPM::m()->host . FPM::m()->cachedImagesBaseDir . '/' . floor(
+		$src = FPM::m()->getHost($id) . FPM::m()->cachedImagesBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
 			) . '/' . $model . '_' . $size . '/' . rawurlencode($id . '-' . $metaData['real_name'] . $ext);
 
@@ -143,7 +143,7 @@ class FPM
 		$metaData = FPM::transfer()->getMetaData($id);
 		$ext = $metaData['extension'] ? '.' . $metaData['extension'] : null;
 		$ext = \mb_strtolower($ext, 'UTF-8');
-		$src = FPM::m()->host . FPM::m()->originalBaseDir . '/' . floor(
+		$src = FPM::m()->getHost($id) . FPM::m()->originalBaseDir . '/' . floor(
 				$id / FPM::m()->filesPerDir
 			) . '/' . rawurlencode($id . '-' . $metaData['real_name'] . $ext);
 
