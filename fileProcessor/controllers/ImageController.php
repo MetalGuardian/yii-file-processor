@@ -68,6 +68,10 @@ class ImageController extends CController
 					case 'resizeCanvas':
 						$ih->resizeCanvas($config['width'], $config['height']);
 						break;
+					case 'rhombusResizeCanvas':
+						$ih->resizeCanvas(floor($config['width'] / 2), floor($config['height'] / 2))
+							->resizeCanvas($config['width'], $config['height']);
+						break;
 					default:
 						throw new CHttpException(400, 'Incorrect action');
 						break;
