@@ -1,5 +1,9 @@
 {
 	"name":"metalguardian/yii-file-processor",
+	"description": "",
+	"keywords": ["yii", "extension", "module", "extension", "file", "upload"],
+	"homepage": "https://github.com/MetalGuardian/yii-file-processor",
+	"type": "yii-module",
 	"authors":[
 		{
 			"name":"Ivan Pushkin"
